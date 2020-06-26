@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "alchemicalbricks:block/alchemical_brick_block"
+  }
+}
+

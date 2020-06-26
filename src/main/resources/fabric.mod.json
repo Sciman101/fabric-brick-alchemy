@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "info.sciman.alchemicalbricks.AlchemicalBricksMod"
+    ],
+    "client": [
+      "info.sciman.alchemicalbricks.AlchemicalBricksModClient"
     ]
   },
   "mixins": [
