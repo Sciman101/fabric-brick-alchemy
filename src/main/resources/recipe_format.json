@@ -1,0 +1,7 @@
+{
+  "input": {
+    "item": "minecraft:stone"
+  },
+  "output": "minecraft:cobblestone",
+  "entropy": 1
+}

@@ -11,10 +11,8 @@ public class AlchemicalBricksModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-
         // Register thrown brick entity renderer
         EntityRendererRegistry.INSTANCE.register(AlchemicalBricksMod.THROWN_BRICK, (dispatcher, context) -> new FlyingItemEntityRenderer<ThrownBrickEntity>(dispatcher, context.getItemRenderer()));
-
     }
 
 }

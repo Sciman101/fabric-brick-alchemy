@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "alchemicalbricks:block/alchemical_brick_block",
+    "bottom": "alchemicalbricks:block/alchemical_brick_block",
+    "side": "alchemicalbricks:block/alchemical_workbench"
+  }
+}

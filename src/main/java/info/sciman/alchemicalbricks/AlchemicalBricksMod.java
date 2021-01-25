@@ -20,28 +20,38 @@ import net.minecraft.util.registry.Registry;
 
 public class AlchemicalBricksMod implements ModInitializer {
 
-	// Define alchemical brick item
-	public static final Item ALCHEMICAL_BRICK_ITEM = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-	public static final Block ALCHEMICAL_BRICK_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f));
+	/* META */
+	public static final String MODID = "alchemicalbricks";
 
+	/* ITEMS */
+	public static final Item ALCHEMICAL_BRICK_ITEM = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
+	/* BLOCKS */
+	public static final Block ALCHEMICAL_BRICK_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f).luminance(8));
+	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing().ticksRandomly());
+	public static final Block ALCHEMICAL_WORKBENCH = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f));
+
+	/* ENTITIES */
 	public static final EntityType<ThrownBrickEntity> THROWN_BRICK = Registry.register(
 		Registry.ENTITY_TYPE,
-		new Identifier("alchemicalbricks","thrown_brick"),
+		id("thrown_brick"),
 			FabricEntityTypeBuilder.create(SpawnGroup.MISC, ThrownBrickEntity::new).dimensions(EntityDimensions.fixed(0.25f,0.25f)).build()
 	);
 
 	@Override
 	public void onInitialize() {
+
 		// Register alchemical brick item
-		Registry.register(Registry.ITEM, new Identifier("alchemicalbricks","alchemical_brick"), ALCHEMICAL_BRICK_ITEM);
+		Registry.register(Registry.ITEM, id("alchemical_brick"), ALCHEMICAL_BRICK_ITEM);
 
 		// Register alchemical brick block and block item
-		Registry.register(Registry.BLOCK, new Identifier("alchemicalbricks","alchemical_brick_block"), ALCHEMICAL_BRICK_BLOCK);
-		Registry.register(Registry.ITEM, new Identifier("alchemicalbricks","alchemical_brick_block"), new BlockItem(ALCHEMICAL_BRICK_BLOCK,new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
+		registerBlockAndItem(id("alchemical_brick_block"), ALCHEMICAL_BRICK_BLOCK, ItemGroup.BUILDING_BLOCKS);
+		registerBlockAndItem(id("alchemical_workbench"), ALCHEMICAL_WORKBENCH, ItemGroup.DECORATIONS);
+		registerBlockAndItem(id("unstable_block"), UNSTABLE_BLOCK, ItemGroup.BUILDING_BLOCKS);
 
+		// TEMP
 		AlchemyRecipes.init();
 
-		// Register right click listener
+		// Register use item listener
 		UseItemCallback.EVENT.register((player, world, hand) -> {
 
 			if (!player.isSpectator()) {
@@ -77,5 +87,21 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 			return TypedActionResult.pass(ItemStack.EMPTY);
 		});
+	}
+
+	/**
+	 * Helper to register a block and it's item simultaneously
+	 * @param id
+	 * @param block
+	 * @param group
+	 */
+	private void registerBlockAndItem(Identifier id, Block block, ItemGroup group) {
+		Registry.register(Registry.BLOCK, id, block);
+		Registry.register(Registry.ITEM, id, new BlockItem(block,new Item.Settings().group(group)));
+	}
+
+	// Helper to create an identifier
+	public static Identifier id(String name) {
+		return new Identifier(MODID,name);
 	}
 }
