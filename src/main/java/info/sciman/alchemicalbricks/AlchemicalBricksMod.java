@@ -39,6 +39,8 @@ public class AlchemicalBricksMod implements ModInitializer {
 		Registry.register(Registry.BLOCK, new Identifier("alchemicalbricks","alchemical_brick_block"), ALCHEMICAL_BRICK_BLOCK);
 		Registry.register(Registry.ITEM, new Identifier("alchemicalbricks","alchemical_brick_block"), new BlockItem(ALCHEMICAL_BRICK_BLOCK,new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
 
+		AlchemyRecipes.init();
+
 		// Register right click listener
 		UseItemCallback.EVENT.register((player, world, hand) -> {
 
@@ -69,7 +71,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 						world.spawnEntity(brickEntity);
 					}
 
-					return TypedActionResult.method_29237(heldStack, world.isClient());
+					return TypedActionResult.success(heldStack, world.isClient());
 				}
 			}
 

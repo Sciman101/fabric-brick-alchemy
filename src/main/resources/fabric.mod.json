@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "Alchemical Bricks",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A weird mod about throwing bricks and fighting god",
   "authors": [
     "Sciman101"
   ],
@@ -13,7 +13,7 @@
     "sources": "https://github.com/Sciman101/fabric-brick-alchemy"
   },
 
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "assets/modid/icon.png",
 
   "environment": "*",
