@@ -1,11 +1,14 @@
 package info.sciman.alchemicalbricks;
 
+import info.sciman.alchemicalbricks.block.UnstableBlock;
+import info.sciman.alchemicalbricks.block.UnstableBlockEntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -25,9 +28,10 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 	/* ITEMS */
 	public static final Item ALCHEMICAL_BRICK_ITEM = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
+	public static final Item UNSTABLE_BRICK_ITEM = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
 	/* BLOCKS */
 	public static final Block ALCHEMICAL_BRICK_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f).luminance(8));
-	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing().ticksRandomly());
+	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing());
 	public static final Block ALCHEMICAL_WORKBENCH = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f));
 
 	/* ENTITIES */
@@ -37,16 +41,22 @@ public class AlchemicalBricksMod implements ModInitializer {
 			FabricEntityTypeBuilder.create(SpawnGroup.MISC, ThrownBrickEntity::new).dimensions(EntityDimensions.fixed(0.25f,0.25f)).build()
 	);
 
-	@Override
+	public static BlockEntityType<UnstableBlockEntity> UNSTABLE_BLOCK_ENTITY;
+
+    @Override
 	public void onInitialize() {
 
 		// Register alchemical brick item
 		Registry.register(Registry.ITEM, id("alchemical_brick"), ALCHEMICAL_BRICK_ITEM);
+		Registry.register(Registry.ITEM, id("unstable_brick"), UNSTABLE_BRICK_ITEM);
 
 		// Register alchemical brick block and block item
 		registerBlockAndItem(id("alchemical_brick_block"), ALCHEMICAL_BRICK_BLOCK, ItemGroup.BUILDING_BLOCKS);
 		registerBlockAndItem(id("alchemical_workbench"), ALCHEMICAL_WORKBENCH, ItemGroup.DECORATIONS);
 		registerBlockAndItem(id("unstable_block"), UNSTABLE_BLOCK, ItemGroup.BUILDING_BLOCKS);
+
+		// Register block entites
+		UNSTABLE_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,id("unstable_block"),BlockEntityType.Builder.create(UnstableBlockEntity::new, UNSTABLE_BLOCK).build(null));
 
 		// TEMP
 		AlchemyRecipes.init();
@@ -60,16 +70,11 @@ public class AlchemicalBricksMod implements ModInitializer {
 				ItemStack heldStack = player.getStackInHand(hand);
 				if (heldStack.getItem().equals(Items.BRICK) ||
 					heldStack.getItem().equals(Items.NETHER_BRICK) ||
-					heldStack.getItem().equals(ALCHEMICAL_BRICK_ITEM)) {
+					heldStack.getItem().equals(ALCHEMICAL_BRICK_ITEM) ||
+					heldStack.getItem().equals(UNSTABLE_BRICK_ITEM)) {
 
 					// Sound effect
 					world.playSound((PlayerEntity)null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / 1.2f);
-
-					// Increment used stat and decrement stack size
-					player.incrementStat(Stats.USED.getOrCreateStat(heldStack.getItem()));
-					if (!player.abilities.creativeMode) {
-						heldStack.decrement(1);
-					}
 
 					// Spawn entity
 					if (!world.isClient) {
@@ -79,6 +84,12 @@ public class AlchemicalBricksMod implements ModInitializer {
 						brickEntity.setPos(player.getX(),player.getEyeY(),player.getZ());
 						brickEntity.setProperties(player, player.pitch, player.yaw, 0.0F, 1.5F, 1.0F);
 						world.spawnEntity(brickEntity);
+					}
+
+					// Increment used stat and decrement stack size
+					player.incrementStat(Stats.USED.getOrCreateStat(heldStack.getItem()));
+					if (!player.abilities.creativeMode) {
+						heldStack.decrement(1);
 					}
 
 					return TypedActionResult.success(heldStack, world.isClient());

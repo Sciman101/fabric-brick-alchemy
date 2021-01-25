@@ -1,5 +1,6 @@
 package info.sciman.alchemicalbricks;
 
+import info.sciman.alchemicalbricks.block.UnstableBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
@@ -20,8 +21,20 @@ public class AlchemyRecipes {
 
     public static void init() {
         System.out.println("Registering transmutation recipes...");
+
+        // This is how you get unstable blocks
+        addRecipe(Blocks.CRYING_OBSIDIAN.asItem(), AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(),false);
+        // And this is how you get unstable bricks
+        addRecipe(AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(), AlchemicalBricksMod.UNSTABLE_BRICK_ITEM,false);
+
+        // Normal recipes
         addRecipe(Blocks.COBBLESTONE.asItem(),Blocks.STONE.asItem(),true);
-        addRecipe(Blocks.DIAMOND_BLOCK.asItem(), Items.EMERALD,true);
+        addRecipe(Blocks.SAND.asItem(),Blocks.RED_SAND.asItem(),true);
+
+        // Stone cycle
+        addRecipe(Blocks.DIORITE,Blocks.ANDESITE);
+        addRecipe(Blocks.ANDESITE,Blocks.GRANITE);
+        addRecipe(Blocks.GRANITE,Blocks.DIORITE);
 
         // Log cycle
         addRecipe(Blocks.OAK_LOG,Blocks.SPRUCE_LOG);
@@ -30,6 +43,14 @@ public class AlchemyRecipes {
         addRecipe(Blocks.JUNGLE_LOG,Blocks.ACACIA_LOG);
         addRecipe(Blocks.ACACIA_LOG,Blocks.DARK_OAK_LOG);
         addRecipe(Blocks.DARK_OAK_LOG,Blocks.OAK_LOG);
+
+        // Plank cycle
+        addRecipe(Blocks.OAK_PLANKS,Blocks.SPRUCE_PLANKS);
+        addRecipe(Blocks.SPRUCE_PLANKS,Blocks.BIRCH_PLANKS);
+        addRecipe(Blocks.BIRCH_PLANKS,Blocks.JUNGLE_PLANKS);
+        addRecipe(Blocks.JUNGLE_PLANKS,Blocks.ACACIA_PLANKS);
+        addRecipe(Blocks.ACACIA_PLANKS,Blocks.DARK_OAK_PLANKS);
+        addRecipe(Blocks.DARK_OAK_PLANKS,Blocks.OAK_PLANKS);
 
     }
 

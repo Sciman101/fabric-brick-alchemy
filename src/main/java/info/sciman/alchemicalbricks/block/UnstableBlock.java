@@ -1,43 +1,64 @@
-package info.sciman.alchemicalbricks;
+package info.sciman.alchemicalbricks.block;
 
+import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class UnstableBlock extends Block {
+// TODO: make these drop something other than bricks
+// Having them replicate so easily is mega busted
+// also: change renderer. it's crazy laggy rn
+public class UnstableBlock extends Block implements BlockEntityProvider {
 
+    private static final int MAX_AGE = 5;
     private static final Identifier TAG_PROTECTED = AlchemicalBricksMod.id("unstable_protected");
-    private final Tag<Block> PROTECTED_BLOCKS;
+    private static final Tag<Block> PROTECTED_BLOCKS;
+    private static final int SPREAD_DELAY_MIN = 20;
+    private static final int SPREAD_DELAY_MAX = 40;
 
-    public static final IntProperty AGE = IntProperty.of("age",0,15);
+    public static final IntProperty AGE = IntProperty.of("age",0,MAX_AGE);
 
+    static {
+        // Get protected blocks
+        PROTECTED_BLOCKS = TagRegistry.block(TAG_PROTECTED);
+    }
 
     public UnstableBlock(Settings settings) {
         super(settings);
-        // Get protected blocks
-        PROTECTED_BLOCKS = TagRegistry.block(TAG_PROTECTED);
         // Setup property
         this.setDefaultState(this.getStateManager().getDefaultState().with(AGE,0));
+    }
+
+    public static boolean canSpreadToBlock(BlockState block) {
+        return (!block.isAir() &&
+                block.getFluidState().getFluid() == Fluids.EMPTY &&
+                !PROTECTED_BLOCKS.contains(block.getBlock()) &&
+                block.getBlock() != AlchemicalBricksMod.UNSTABLE_BLOCK);
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(AGE);
+    }
+
+    private int getSpreadDelay(World world) {
+        return world.random.nextInt(SPREAD_DELAY_MAX-SPREAD_DELAY_MIN)+SPREAD_DELAY_MIN+1;
     }
 
     @Override
@@ -48,21 +69,33 @@ public class UnstableBlock extends Block {
         // Move
         if (!newPos.equals(pos)) {
             world.setBlockState(newPos,this.getDefaultState());
+            world.getBlockTickScheduler().schedule(newPos,this,getSpreadDelay(world));
         }
     }
 
-    // Spread on random tick
+    // Schedule initial tick event
     @Override
-    public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        super.randomTick(state, world, pos, random);
+    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+        world.getBlockTickScheduler().schedule(pos, this, getSpreadDelay(world));
+    }
+
+    @Override
+    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        super.scheduledTick(state, world, pos, random);
 
         BlockPos newPos = findValidAdjacentBlock((World) world,pos);
         // Clone and age
         int newAge = state.get(AGE)+1;
-        boolean success = !newPos.equals(pos) && (newAge < 16);
-
-        // Update block in world
-        world.setBlockState(newPos,success ? state.with(AGE, newAge) :  Blocks.AIR.getDefaultState());
+        if (newPos != pos && newAge <= MAX_AGE) {
+            // Spread
+            world.setBlockState(newPos,state.with(AGE, newAge));
+            // Schedule another delay
+            world.getBlockTickScheduler().schedule(newPos, this, getSpreadDelay(world));
+            world.getBlockTickScheduler().schedule(pos, this, getSpreadDelay(world));
+        }else{
+            // Just get rid of it
+            world.setBlockState(pos,Blocks.AIR.getDefaultState());
+        }
     }
 
     private BlockPos findValidAdjacentBlock(World world, BlockPos original) {
@@ -78,7 +111,7 @@ public class UnstableBlock extends Block {
                         // Check for valid block
                         BlockPos p = original.add(x,y,z);
                         BlockState s = world.getBlockState(p);
-                        if (!s.isAir() && !PROTECTED_BLOCKS.contains(s.getBlock())) {
+                        if (canSpreadToBlock(s)) {
                             validPos.add(p);
                         }
                     }
@@ -91,5 +124,11 @@ public class UnstableBlock extends Block {
             // Return random position
             return validPos.get(world.random.nextInt(validPos.size()));
         }
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity(BlockView world) {
+        return new UnstableBlockEntity();
     }
 }

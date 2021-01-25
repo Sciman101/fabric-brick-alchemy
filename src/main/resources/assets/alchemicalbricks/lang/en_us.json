@@ -2,5 +2,6 @@
   "item.alchemicalbricks.alchemical_brick": "Alchemical Brick",
   "block.alchemicalbricks.alchemical_brick_block": "Alchemical Bricks",
   "block.alchemicalbricks.alchemical_workbench": "Alchemy Altar",
-  "block.alchemicalbricks.unstable_block": "Unstable Block"
+  "block.alchemicalbricks.unstable_block": "Unstable Block",
+  "item.alchemicalbricks.unstable_brick": "Unstable Brick"
 }

@@ -1,5 +1,6 @@
 package info.sciman.alchemicalbricks;
 
+import info.sciman.alchemicalbricks.block.UnstableBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -81,6 +82,14 @@ public class ThrownBrickEntity extends ThrownItemEntity {
             else if (this.getItem().getItem() == AlchemicalBricksMod.ALCHEMICAL_BRICK_ITEM) {
                 // Do a transmutation in the world
                 AlchemyHelper.performWorldTransmutation(world,pos);
+            }
+
+            // Are we an unstable brick item?
+            else if (this.getItem().getItem() == AlchemicalBricksMod.UNSTABLE_BRICK_ITEM) {
+                if (UnstableBlock.canSpreadToBlock(block)) {
+                    // Set the block to an unstable block
+                    this.world.setBlockState(pos, AlchemicalBricksMod.UNSTABLE_BLOCK.getDefaultState());
+                }
             }
 
             // Destroy
