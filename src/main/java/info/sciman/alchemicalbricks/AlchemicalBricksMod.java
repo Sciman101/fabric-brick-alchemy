@@ -7,20 +7,28 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
+import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.Material;
 import net.minecraft.block.SlabBlock;
+import net.minecraft.block.dispenser.DispenserBehavior;
+import net.minecraft.block.dispenser.ProjectileDispenserBehavior;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.*;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.Position;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
 public class AlchemicalBricksMod implements ModInitializer {
 
@@ -37,6 +45,10 @@ public class AlchemicalBricksMod implements ModInitializer {
 	public static final Block POLISHED_ALCHEMICAL_BRICKS = new Block(FabricBlockSettings.of(Material.STONE).hardness(3.0f).luminance(6));
 	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing());
 	public static final Block ALCHEMICAL_WORKBENCH = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f));
+
+	/* STATUS */
+	public static final StatusEffect INSTABILITY = new InstabilityStatusEffect();
+	public static final DamageSource INSTABILITY_DAMAGE = (new CustomDamageSource("instability")).setBypassesArmor().setUsesMagic();
 
 	/* ENTITIES */
 	public static final EntityType<ThrownBrickEntity> THROWN_BRICK = Registry.register(
@@ -64,6 +76,8 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 		// Register block entites
 		UNSTABLE_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,id("unstable_block"),BlockEntityType.Builder.create(UnstableBlockEntity::new, UNSTABLE_BLOCK).build(null));
+
+		Registry.register(Registry.STATUS_EFFECT,id("instability"),INSTABILITY);
 
 		// TEMP
 		AlchemyRecipes.init();
@@ -105,6 +119,21 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 			return TypedActionResult.pass(ItemStack.EMPTY);
 		});
+
+		// Add dispenser behaviour
+		DispenserBehavior brickThrowBehaviour = new ProjectileDispenserBehavior()  {
+			@Override
+			protected ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+				ThrownBrickEntity brickEntity = new ThrownBrickEntity(THROWN_BRICK,world);
+				brickEntity.setItem(new ItemStack(stack.getItem()));
+				brickEntity.setPos(position.getX(),position.getY(),position.getZ());
+				return brickEntity;
+			}
+		};
+		DispenserBlock.registerBehavior(Items.BRICK,brickThrowBehaviour);
+		DispenserBlock.registerBehavior(Items.NETHER_BRICK,brickThrowBehaviour);
+		DispenserBlock.registerBehavior(ALCHEMICAL_BRICK,brickThrowBehaviour);
+		DispenserBlock.registerBehavior(UNSTABLE_BRICK,brickThrowBehaviour);
 	}
 
 	/**

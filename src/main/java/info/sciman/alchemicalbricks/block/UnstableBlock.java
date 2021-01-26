@@ -4,6 +4,11 @@ import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -50,6 +55,15 @@ public class UnstableBlock extends Block implements BlockEntityProvider {
                 block.getFluidState().getFluid() == Fluids.EMPTY &&
                 !PROTECTED_BLOCKS.contains(block.getBlock()) &&
                 block.getBlock() != AlchemicalBricksMod.UNSTABLE_BLOCK);
+    }
+
+    // Give effect to those that step on us
+    public void onSteppedOn(World world, BlockPos pos, Entity entity) {
+        if (!entity.isFireImmune() && entity instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)entity)) {
+            ((LivingEntity) entity).addStatusEffect(new StatusEffectInstance(AlchemicalBricksMod.INSTABILITY,200));
+        }
+
+        super.onSteppedOn(world, pos, entity);
     }
 
     @Override

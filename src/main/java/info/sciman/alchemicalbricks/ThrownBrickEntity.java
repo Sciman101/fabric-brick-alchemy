@@ -3,9 +3,16 @@ package info.sciman.alchemicalbricks;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.tag.TagRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.ProjectileDamageSource;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -15,11 +22,20 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
+import net.minecraft.tag.Tag;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ThrownBrickEntity extends ThrownItemEntity {
+
+    private static final Tag<EntityType<?>> SKELETONS;
+
+    static {
+        SKELETONS = TagRegistry.entityType(new Identifier("minecraft","skeletons"));
+    }
 
     public ThrownBrickEntity(EntityType<? extends ThrownItemEntity> entityType, World world) {
         super(entityType, world);
@@ -44,6 +60,37 @@ public class ThrownBrickEntity extends ThrownItemEntity {
                 this.world.addParticle(particleEffect, this.getX(), this.getY(), this.getZ(), 0.0D, 0.0D, 0.0D);
             }
         }
+    }
+
+
+
+    // Hit mobs
+    @Override
+    protected void onEntityHit(EntityHitResult entityHitResult) {
+        super.onEntityHit(entityHitResult);
+
+        Entity entity = entityHitResult.getEntity();
+
+        // Do more damage to skeletons
+        boolean isSkeleton = SKELETONS.contains(entityHitResult.getEntity().getType());
+        entity.damage((new ProjectileDamageSource("brick", this, getOwner())).setProjectile(),isSkeleton ? 2.0f : 1.0f);
+
+        // Set on fire if we're a nether brick
+        if (this.getItem().getItem() == Items.NETHER_BRICK) {
+            entity.setOnFireFor(1);
+        }
+        // Make an entity unstable
+        else if (this.getItem().getItem() == AlchemicalBricksMod.UNSTABLE_BRICK) {
+            if (entity instanceof LivingEntity) {
+                ((LivingEntity)entity).addStatusEffect(new StatusEffectInstance(AlchemicalBricksMod.INSTABILITY,600,1));
+            }
+        }else if (this.getItem().getItem() == AlchemicalBricksMod.ALCHEMICAL_BRICK) {
+            //TODO implement something here
+        }
+
+        // Destroy
+        this.world.sendEntityStatus(this, (byte)3);
+        this.remove();
     }
 
     // Break glass
