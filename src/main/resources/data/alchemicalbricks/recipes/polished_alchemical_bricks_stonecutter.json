@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "alchemicalbricks:alchemical_bricks"
+  },
+  "result": "alchemicalbricks:polished_alchemical_bricks",
+  "count": 1
+}

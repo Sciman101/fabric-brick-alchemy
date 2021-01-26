@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "alchemicalbricks:block/alchemical_brick_slab"
+    },
+    "type=double": {
+      "model": "alchemicalbricks:block/alchemical_bricks"
+    },
+    "type=top": {
+      "model": "alchemicalbricks:block/alchemical_brick_slab_top"
+    }
+  }
+}

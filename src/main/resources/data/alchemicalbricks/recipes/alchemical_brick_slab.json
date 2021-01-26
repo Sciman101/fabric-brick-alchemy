@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "alchemicalbricks:alchemical_bricks"
+    }
+  },
+  "result": {
+    "item": "alchemicalbricks:alchemical_brick_slab",
+    "count": 6
+  }
+}

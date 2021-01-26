@@ -6,10 +6,11 @@
   ],
   "key": {
     "#": {
-      "item": "alchemicalbricks:alchemical_brick"
+      "item": "alchemicalbricks:alchemical_bricks"
     }
   },
   "result": {
-    "item": "alchemicalbricks:alchemical_brick_block"
+    "item": "alchemicalbricks:polished_alchemical_bricks",
+    "count": 4
   }
 }

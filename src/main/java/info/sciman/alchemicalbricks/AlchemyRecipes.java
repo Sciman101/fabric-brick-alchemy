@@ -1,10 +1,8 @@
 package info.sciman.alchemicalbricks;
 
-import info.sciman.alchemicalbricks.block.UnstableBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 
 import java.util.HashMap;
 
@@ -25,7 +23,7 @@ public class AlchemyRecipes {
         // This is how you get unstable blocks
         addRecipe(Blocks.CRYING_OBSIDIAN.asItem(), AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(),false);
         // And this is how you get unstable bricks
-        addRecipe(AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(), AlchemicalBricksMod.UNSTABLE_BRICK_ITEM,false);
+        addRecipe(AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(), AlchemicalBricksMod.UNSTABLE_MATTER,false);
 
         // Normal recipes
         addRecipe(Blocks.COBBLESTONE.asItem(),Blocks.STONE.asItem(),true);

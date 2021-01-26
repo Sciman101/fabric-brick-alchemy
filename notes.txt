@@ -1,0 +1,5 @@
+[--PROGRESSION--]
+regular bricks
+nether bricks
+alchemical bricks -> polished alchemical bricks
+crying obsidian -> unstable blocks -> unstable matter -> unstable bricks

@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
+import net.minecraft.block.SlabBlock;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -27,10 +28,13 @@ public class AlchemicalBricksMod implements ModInitializer {
 	public static final String MODID = "alchemicalbricks";
 
 	/* ITEMS */
-	public static final Item ALCHEMICAL_BRICK_ITEM = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-	public static final Item UNSTABLE_BRICK_ITEM = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
+	public static final Item ALCHEMICAL_BRICK = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
+	public static final Item UNSTABLE_MATTER = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
+	public static final Item UNSTABLE_BRICK = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
 	/* BLOCKS */
-	public static final Block ALCHEMICAL_BRICK_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f).luminance(8));
+	public static final Block ALCHEMICAL_BRICKS = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f).luminance(8));
+	public static final Block ALCHEMICAL_BRICK_SLAB = new SlabBlock(FabricBlockSettings.of(Material.STONE).hardness(2.0f).luminance(8));
+	public static final Block POLISHED_ALCHEMICAL_BRICKS = new Block(FabricBlockSettings.of(Material.STONE).hardness(3.0f).luminance(6));
 	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing());
 	public static final Block ALCHEMICAL_WORKBENCH = new Block(FabricBlockSettings.of(Material.STONE).hardness(2.0f));
 
@@ -47,11 +51,14 @@ public class AlchemicalBricksMod implements ModInitializer {
 	public void onInitialize() {
 
 		// Register alchemical brick item
-		Registry.register(Registry.ITEM, id("alchemical_brick"), ALCHEMICAL_BRICK_ITEM);
-		Registry.register(Registry.ITEM, id("unstable_brick"), UNSTABLE_BRICK_ITEM);
+		Registry.register(Registry.ITEM, id("alchemical_brick"), ALCHEMICAL_BRICK);
+		Registry.register(Registry.ITEM, id("unstable_matter"), UNSTABLE_MATTER);
+		Registry.register(Registry.ITEM, id("unstable_brick"), UNSTABLE_BRICK);
 
 		// Register alchemical brick block and block item
-		registerBlockAndItem(id("alchemical_brick_block"), ALCHEMICAL_BRICK_BLOCK, ItemGroup.BUILDING_BLOCKS);
+		registerBlockAndItem(id("alchemical_bricks"), ALCHEMICAL_BRICKS, ItemGroup.BUILDING_BLOCKS);
+		registerBlockAndItem(id("alchemical_brick_slab"), ALCHEMICAL_BRICK_SLAB, ItemGroup.BUILDING_BLOCKS);
+		registerBlockAndItem(id("polished_alchemical_bricks"), POLISHED_ALCHEMICAL_BRICKS, ItemGroup.BUILDING_BLOCKS);
 		registerBlockAndItem(id("alchemical_workbench"), ALCHEMICAL_WORKBENCH, ItemGroup.DECORATIONS);
 		registerBlockAndItem(id("unstable_block"), UNSTABLE_BLOCK, ItemGroup.BUILDING_BLOCKS);
 
@@ -70,8 +77,8 @@ public class AlchemicalBricksMod implements ModInitializer {
 				ItemStack heldStack = player.getStackInHand(hand);
 				if (heldStack.getItem().equals(Items.BRICK) ||
 					heldStack.getItem().equals(Items.NETHER_BRICK) ||
-					heldStack.getItem().equals(ALCHEMICAL_BRICK_ITEM) ||
-					heldStack.getItem().equals(UNSTABLE_BRICK_ITEM)) {
+					heldStack.getItem().equals(ALCHEMICAL_BRICK) ||
+					heldStack.getItem().equals(UNSTABLE_BRICK)) {
 
 					// Sound effect
 					world.playSound((PlayerEntity)null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / 1.2f);

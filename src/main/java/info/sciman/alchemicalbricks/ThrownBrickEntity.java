@@ -3,15 +3,11 @@ package info.sciman.alchemicalbricks;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleEffect;
@@ -22,8 +18,6 @@ import net.minecraft.tag.BlockTags;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import java.util.Random;
 
 public class ThrownBrickEntity extends ThrownItemEntity {
 
@@ -79,13 +73,13 @@ public class ThrownBrickEntity extends ThrownItemEntity {
             }
 
             // Are we an alchemical brick item?
-            else if (this.getItem().getItem() == AlchemicalBricksMod.ALCHEMICAL_BRICK_ITEM) {
+            else if (this.getItem().getItem() == AlchemicalBricksMod.ALCHEMICAL_BRICK) {
                 // Do a transmutation in the world
                 AlchemyHelper.performWorldTransmutation(world,pos);
             }
 
             // Are we an unstable brick item?
-            else if (this.getItem().getItem() == AlchemicalBricksMod.UNSTABLE_BRICK_ITEM) {
+            else if (this.getItem().getItem() == AlchemicalBricksMod.UNSTABLE_BRICK) {
                 if (UnstableBlock.canSpreadToBlock(block)) {
                     // Set the block to an unstable block
                     this.world.setBlockState(pos, AlchemicalBricksMod.UNSTABLE_BLOCK.getDefaultState());
