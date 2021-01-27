@@ -2,6 +2,7 @@ package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
+import info.sciman.alchemicalbricks.util.AlchemyRecipes;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
@@ -12,6 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.particle.ParticleTypes;
@@ -27,12 +29,14 @@ import net.minecraft.util.Tickable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
 public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, Tickable {
 
+    public static final int MAX_ENTROPY = 80;
     // Everything the altar pillars can be made of
     private static final Tag<Block> PILLAR_BLOCKS;
     static {
@@ -60,6 +64,11 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
     private byte pillarArrangement;
     // Used to store input/output
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(2, ItemStack.EMPTY);
+
+    // Used for transmutation
+    private Item prevInputItem = null; // What was the last thing we had input?
+    private ItemStack cachedOutput = ItemStack.EMPTY; // This is what we will produce
+    private boolean transmuting = false;
 
     // PropertyDelegate to sync values
     private final PropertyDelegate propertyDelegate = new PropertyDelegate() {
@@ -106,19 +115,77 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
 
     @Override
     public void tick() {
-        if (!world.isClient()) {
-            entropy+=numPillars;
-            if (entropy > 100) {
-                entropy = 0;
-            }
 
-            if (numPillars > 0) {
-                // Increment progress based on the number of pillars surrounding the altar
-                if (world.getTime() % ((9-numPillars)*2) == 0L) {
-                    conversionProgress++;
-                    if (conversionProgress > 24) {
-                        conversionProgress = 0;
+        boolean doParticles = false;
+        if (!world.isClient()) {
+
+            ItemStack inputStack = getItems().get(0);
+            // If we aren't already transmuting, try and find a valid transmutation
+            if (!transmuting) {
+                if (!inputStack.isEmpty()) {
+                    // Check for a change in item
+                    if (inputStack.getItem() != prevInputItem) {
+                        // this should only get called when an item is swapped in the slot
+                        Item outputItem = AlchemyRecipes.getConversion(inputStack.getItem());
+                        if (outputItem != null) {
+                            cachedOutput = new ItemStack(outputItem);
+                            transmuting = true;
+                            conversionProgress = 0;
+                        }
                     }
+                    prevInputItem = inputStack.getItem();
+                }
+            }else{
+
+                doParticles = true;
+
+                // First, check for item removal
+                if (inputStack.isEmpty() || inputStack.getItem() != prevInputItem) {
+                    // Reset conversion
+                    transmuting = false;
+                    conversionProgress = 0;
+                    prevInputItem = null;
+                    cachedOutput = ItemStack.EMPTY;
+                }else{
+
+                    ItemStack outputStack = getItems().get(1);
+
+                    if (numPillars > 0) {
+
+                        // Make sure the output matches the cached output
+                        if ((outputStack.getItem() == cachedOutput.getItem() || outputStack.isEmpty()) && outputStack.getCount() + cachedOutput.getCount() <= outputStack.getMaxCount()) {
+                            // Increment progress based on the number of pillars surrounding the altar
+                            if (world.getTime() % ((9 - numPillars) * 2L) == 0L) {
+                                conversionProgress++;
+                                if (conversionProgress > 24) {
+                                    // Transmutation successful!
+
+                                    // Decrement input stack
+                                    inputStack.decrement(1);
+                                    // Set output
+                                    if (outputStack.isEmpty()) {
+                                        getItems().set(1,cachedOutput.copy());
+                                    }else {
+                                        outputStack.increment(cachedOutput.getCount());
+                                    }
+
+                                    // Reset progress
+                                    conversionProgress = 0;
+
+                                    // Add entropy
+                                    this.entropy++;
+
+                                    // Uh oh
+                                    if (entropy > MAX_ENTROPY) {
+                                        BlockPos pos = getPos();
+                                        this.world.createExplosion(null,pos.getX()+0.5,pos.getY()+0.5,pos.getZ()+0.5,8f, Explosion.DestructionType.DESTROY);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    prevInputItem = inputStack.getItem();
                 }
             }
         }else{
@@ -143,7 +210,6 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                     }
                 }
             }
-
         }
 
 

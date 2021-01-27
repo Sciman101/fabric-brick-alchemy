@@ -6,7 +6,9 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 public class AlchemicalWorkbenchScreen extends HandledScreen<ScreenHandler> {
@@ -44,6 +46,18 @@ public class AlchemicalWorkbenchScreen extends HandledScreen<ScreenHandler> {
         renderBackground(matrices);
         super.render(matrices,mouseX,mouseY,delta);
         drawMouseoverTooltip(matrices,mouseX,mouseY);
+    }
+
+    @Override
+    protected void drawMouseoverTooltip(MatrixStack matrices, int x, int y) {
+
+        if (x > this.x+50 && y > this.y+26 && x < this.x+150 && y < this.y+33) {
+            int entropy = (int) ((((float)screenHandler.getEntropyMeterAmount())/80)*100);
+            Text text = new TranslatableText("gui.alchemicalbricks.altar.entropy").append(new LiteralText(entropy+"%"));
+            renderTooltip(matrices,text,x,y);
+        }
+
+        super.drawMouseoverTooltip(matrices, x, y);
     }
 
     @Override

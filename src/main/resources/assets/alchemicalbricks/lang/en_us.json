@@ -14,6 +14,8 @@
 
   "effect.alchemicalbricks.instability": "Instability",
 
+  "gui.alchemicalbricks.altar.entropy": "Entropy: ",
+
   "death.attack.brick": "%1$s was bricked to death by %2$s",
   "death.attack.brick.item": "%1$s was bricked to death by %2$s using %3$s",
   "death.attack.instability": "%1$s was torn apart across reality"

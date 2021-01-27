@@ -1,6 +1,7 @@
 package info.sciman.alchemicalbricks.screen;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
+import info.sciman.alchemicalbricks.block.entity.AlchemicalWorkbenchBlockEntity;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -55,7 +56,7 @@ public class AlchemicalWorkbenchScreenHandler extends ScreenHandler {
 
     // Getters for the screen
     public int getEntropyMeterAmount() {
-        return (int) ((((float)propertyDelegate.get(0))/100)*80);
+        return propertyDelegate.get(0);
     }
     public int getConversionProgress() {
         return propertyDelegate.get(1);
