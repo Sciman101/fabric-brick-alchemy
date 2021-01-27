@@ -1,4 +1,6 @@
 {
+  "itemGroup.alchemicalbricks.group": "Alchemical Bricks",
+
   "item.alchemicalbricks.alchemical_brick": "Alchemical Brick",
   "item.alchemicalbricks.unstable_matter": "Unstable Matter",
   "item.alchemicalbricks.unstable_brick": "Unstable Brick",
@@ -6,8 +8,9 @@
   "block.alchemicalbricks.alchemical_bricks": "Alchemical Bricks",
   "block.alchemicalbricks.alchemical_brick_slab": "Alchemical Brick Slab",
   "block.alchemicalbricks.polished_alchemical_bricks": "Polished Alchemical Bricks",
-  "block.alchemicalbricks.alchemical_workbench": "Alchemy Altar",
+  "block.alchemicalbricks.polished_alchemical_brick_slab": "Polished Alchemical Brick Slab",
   "block.alchemicalbricks.unstable_block": "Unstable Block",
+  "block.alchemicalbricks.alchemical_workbench": "Alchemic Altar",
 
   "effect.alchemicalbricks.instability": "Instability",
 

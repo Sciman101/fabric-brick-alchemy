@@ -1,4 +1,4 @@
-package info.sciman.alchemicalbricks.block;
+package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import net.minecraft.block.entity.BlockEntity;

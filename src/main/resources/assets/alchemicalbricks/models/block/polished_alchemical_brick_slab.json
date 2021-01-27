@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "alchemicalbricks:block/polished_alchemical_bricks",
+    "top": "alchemicalbricks:block/polished_alchemical_bricks",
+    "side": "alchemicalbricks:block/polished_alchemical_bricks"
+  }
+}
+

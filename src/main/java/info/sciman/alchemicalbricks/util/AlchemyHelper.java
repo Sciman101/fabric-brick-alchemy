@@ -1,4 +1,4 @@
-package info.sciman.alchemicalbricks;
+package info.sciman.alchemicalbricks.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;

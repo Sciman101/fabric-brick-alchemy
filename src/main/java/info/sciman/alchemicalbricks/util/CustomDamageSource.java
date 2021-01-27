@@ -1,9 +1,9 @@
-package info.sciman.alchemicalbricks;
+package info.sciman.alchemicalbricks.util;
 
 import net.minecraft.entity.damage.DamageSource;
 
 public class CustomDamageSource extends DamageSource {
-    protected CustomDamageSource(String name) {
+    public CustomDamageSource(String name) {
         super(name);
     }
 

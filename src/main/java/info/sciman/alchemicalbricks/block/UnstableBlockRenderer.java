@@ -1,6 +1,7 @@
 package info.sciman.alchemicalbricks.block;
 
 import com.google.common.collect.ImmutableList;
+import info.sciman.alchemicalbricks.block.entity.UnstableBlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;

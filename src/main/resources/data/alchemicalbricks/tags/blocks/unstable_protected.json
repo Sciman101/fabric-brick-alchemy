@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "alchemicalbricks:unstable_block",
+    "alchemicalbricks:alchemical_workbench",
     "minecraft:bedrock",
     "minecraft:end_portal",
     "minecraft:nether_portal",

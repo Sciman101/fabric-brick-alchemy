@@ -1,5 +1,6 @@
-package info.sciman.alchemicalbricks;
+package info.sciman.alchemicalbricks.util;
 
+import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
@@ -24,6 +25,8 @@ public class AlchemyRecipes {
         addRecipe(Blocks.CRYING_OBSIDIAN.asItem(), AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(),false);
         // And this is how you get unstable bricks
         addRecipe(AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(), AlchemicalBricksMod.UNSTABLE_MATTER,false);
+        // And this is how you get the workbench
+        addRecipe(Blocks.ENDER_CHEST, AlchemicalBricksMod.ALCHEMICAL_WORKBENCH);
 
         // Normal recipes
         addRecipe(Blocks.COBBLESTONE.asItem(),Blocks.STONE.asItem(),true);
