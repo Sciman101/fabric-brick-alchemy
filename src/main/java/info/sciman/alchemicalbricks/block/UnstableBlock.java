@@ -33,8 +33,8 @@ public class UnstableBlock extends Block implements BlockEntityProvider {
     private static final int MAX_AGE = 5;
     private static final Identifier TAG_PROTECTED = AlchemicalBricksMod.id("unstable_protected");
     private static final Tag<Block> PROTECTED_BLOCKS;
-    private static final int SPREAD_DELAY_MIN = 30;
-    private static final int SPREAD_DELAY_MAX = 60;
+    private static final int SPREAD_DELAY_MIN = 60;
+    private static final int SPREAD_DELAY_MAX = 120;
 
     public static final IntProperty AGE = IntProperty.of("age",0,MAX_AGE);
 

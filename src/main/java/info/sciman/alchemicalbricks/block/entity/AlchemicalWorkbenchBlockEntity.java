@@ -1,14 +1,19 @@
 package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
+import info.sciman.alchemicalbricks.block.AlchemicalWorkbenchBlock;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
+import net.fabricmc.fabric.impl.biome.modification.BuiltInRegistryKeys;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
@@ -21,6 +26,8 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -28,7 +35,9 @@ import net.minecraft.util.Tickable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.explosion.Explosion;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -39,8 +48,10 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
     public static final int MAX_ENTROPY = 100;
     // Everything the altar pillars can be made of
     private static final Tag<Block> PILLAR_BLOCKS;
+    private static final Tag<EntityType<?>> SUMMONS;
     static {
         PILLAR_BLOCKS = TagRegistry.block(AlchemicalBricksMod.id("alchemical_bricks"));
+        SUMMONS = TagRegistry.entityType(AlchemicalBricksMod.id("altar_summons"));
     }
 
     // Multiblock helpers
@@ -103,6 +114,10 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
         super(AlchemicalBricksMod.ALCHEMICAL_WORKBENCH_ENTITY);
     }
 
+    public int getEntropy() {
+        return entropy;
+    }
+
     public void setCustomName(Text customName) {
         this.customName = customName;
     }
@@ -130,10 +145,12 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
     @Override
     public void tick() {
 
-        boolean doParticles = false;
+        boolean dirty = false;
+
         if (!world.isClient()) {
 
             ItemStack inputStack = getItems().get(0);
+            boolean wasTransmuting = transmuting;
             // If we aren't already transmuting, try and find a valid transmutation
             if (!transmuting) {
                 if (!inputStack.isEmpty()) {
@@ -160,8 +177,6 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                     prevInputItem = inputStack.getItem();
                 }
             }else{
-
-                doParticles = true;
 
                 // First, check for item removal
                 if (inputStack.isEmpty() || inputStack.getItem() != prevInputItem) {
@@ -199,10 +214,32 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                                     // Add entropy
                                     this.entropy += cachedRecipe.getEntropy();
 
-                                    // Uh oh
-                                    if (entropy > MAX_ENTROPY) {
+                                    // Check for overflow
+                                    if (this.entropy >= MAX_ENTROPY) {
+                                        // Bad stuff
                                         BlockPos pos = getPos();
-                                        this.world.createExplosion(null,pos.getX()+0.5,pos.getY()+0.5,pos.getZ()+0.5,8f, Explosion.DestructionType.DESTROY);
+                                        this.world.createExplosion(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 8f, Explosion.DestructionType.DESTROY);
+
+                                        for (int x=-1;x<2;x++) {
+                                            for (int y=-1;y<2;y++) {
+                                                for (int z=-1;z<2;z++) {
+                                                    if (world.random.nextDouble() < .5) {
+                                                        world.setBlockState(getPos().add(x,y,z),AlchemicalBricksMod.UNSTABLE_BLOCK.getDefaultState());
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                    }else{
+                                        if (world.random.nextInt(MAX_ENTROPY) < entropy) {
+                                            // Do something
+                                        }
+
+                                        // Update visual
+                                        int level = entropy/20;
+                                        if (level > 4) {level = 4;}
+                                        this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicalWorkbenchBlock.ACTIVE,transmuting).with(AlchemicalWorkbenchBlock.ENTROPY,level));
+                                        dirty = true;
                                     }
                                 }
                             }
@@ -212,9 +249,19 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                     prevInputItem = inputStack.getItem();
                 }
             }
+
+            // Update transmuting state
+            if (transmuting != wasTransmuting) {
+                // Update visual
+                int level = entropy/20;
+                if (level > 4) {level = 4;}
+                this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicalWorkbenchBlock.ACTIVE,transmuting).with(AlchemicalWorkbenchBlock.ENTROPY,level));
+                dirty = true;
+            }
+
         }else{
             // Client effects
-            if (numPillars > 0) {
+            if (numPillars > 0 && getCachedState().get(AlchemicalWorkbenchBlock.ACTIVE)) {
                 BlockPos ppos, pos;
                 pos = getPos();
                 boolean pillarExists;
@@ -240,6 +287,11 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
         // Poll for multiblock structure
         if (this.world.getTime() % 40L == 0L) {
             updatePillarCount();
+        }
+
+        // Update dirty
+        if (dirty) {
+            this.markDirty();
         }
     }
 

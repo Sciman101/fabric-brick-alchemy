@@ -9,18 +9,27 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class AlchemicalWorkbenchBlock extends BlockWithEntity {
+
+    public static final BooleanProperty ACTIVE = BooleanProperty.of("active");
+    public static final IntProperty ENTROPY = IntProperty.of("entropy",0,4);
+
     public AlchemicalWorkbenchBlock(Settings settings) {
         super(settings);
+        this.setDefaultState((BlockState)((BlockState)((BlockState)this.getStateManager().getDefaultState()).with(ACTIVE, false).with(ENTROPY,0)));
     }
 
     @Override
@@ -33,6 +42,11 @@ public class AlchemicalWorkbenchBlock extends BlockWithEntity {
     @Override
     public BlockEntity createBlockEntity(BlockView world) {
         return new AlchemicalWorkbenchBlockEntity();
+    }
+
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(ACTIVE);
+        builder.add(ENTROPY);
     }
 
     @Override
@@ -78,7 +92,12 @@ public class AlchemicalWorkbenchBlock extends BlockWithEntity {
 
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-        return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
+        BlockEntity be = world.getBlockEntity(pos);
+        if (be instanceof AlchemicalWorkbenchBlockEntity) {
+            return (int) ((((float)((AlchemicalWorkbenchBlockEntity)be).getEntropy()) / AlchemicalWorkbenchBlockEntity.MAX_ENTROPY) * 15);
+        }else{
+            return 0;
+        }
     }
 
 

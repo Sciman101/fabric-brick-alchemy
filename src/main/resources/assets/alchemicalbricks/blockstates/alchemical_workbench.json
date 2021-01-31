@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "entropy=0": { "model": "alchemicalbricks:block/alchemical_workbench_0" },
+    "entropy=1": { "model": "alchemicalbricks:block/alchemical_workbench_1" },
+    "entropy=2": { "model": "alchemicalbricks:block/alchemical_workbench_2" },
+    "entropy=3": { "model": "alchemicalbricks:block/alchemical_workbench_3" },
+    "entropy=4": { "model": "alchemicalbricks:block/alchemical_workbench_4" }
+  }
+}
+
