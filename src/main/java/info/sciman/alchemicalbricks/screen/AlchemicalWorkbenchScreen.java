@@ -31,7 +31,7 @@ public class AlchemicalWorkbenchScreen extends HandledScreen<ScreenHandler> {
         drawTexture(matrices,x,y,0,0,backgroundWidth,backgroundHeight);
 
         // Draw entropy meter
-        int progress = screenHandler.getEntropyMeterAmount();
+        int progress = (int) (screenHandler.getEntropyPercentage()*80);
         if (progress > 0) {
             drawTexture(matrices,x+50,y+26,0,166, progress,7);
         }
@@ -52,7 +52,7 @@ public class AlchemicalWorkbenchScreen extends HandledScreen<ScreenHandler> {
     protected void drawMouseoverTooltip(MatrixStack matrices, int x, int y) {
 
         if (x > this.x+50 && y > this.y+26 && x < this.x+150 && y < this.y+33) {
-            int entropy = (int) ((((float)screenHandler.getEntropyMeterAmount())/80)*100);
+            int entropy = (int) (screenHandler.getEntropyPercentage()*100);
             Text text = new TranslatableText("gui.alchemicalbricks.altar.entropy").append(new LiteralText(entropy+"%"));
             renderTooltip(matrices,text,x,y);
         }

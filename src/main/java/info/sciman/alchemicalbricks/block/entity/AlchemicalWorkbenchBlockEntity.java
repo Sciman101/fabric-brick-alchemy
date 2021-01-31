@@ -36,7 +36,7 @@ import java.util.Random;
 
 public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, Tickable {
 
-    public static final int MAX_ENTROPY = 80;
+    public static final int MAX_ENTROPY = 100;
     // Everything the altar pillars can be made of
     private static final Tag<Block> PILLAR_BLOCKS;
     static {
@@ -55,6 +55,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
             new BlockPos(-2,1,2)
     };
 
+    private Text customName;
 
     // How much entropy does the workbench contain? from 0-100
     private int entropy = 0;
@@ -102,8 +103,21 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
         super(AlchemicalBricksMod.ALCHEMICAL_WORKBENCH_ENTITY);
     }
 
-    @Override
+    public void setCustomName(Text customName) {
+        this.customName = customName;
+    }
+    public Text getName() {
+        return this.customName != null ? this.customName : this.getContainerName();
+    }
     public Text getDisplayName() {
+        return this.getName();
+    }
+    @Nullable
+    public Text getCustomName() {
+        return this.customName;
+    }
+    // Default name
+    protected Text getContainerName() {
         return new TranslatableText(getCachedState().getBlock().getTranslationKey());
     }
 
@@ -226,13 +240,16 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
         pillarArrangement = 0;
         int i,j;
         for (i=0;i<8;i++) {
-            BlockPos pillarPos = getPos().add(PILLAR_OFFSETS[i]);
+            BlockPos offset = PILLAR_OFFSETS[i];
+            BlockPos pillarPos = getPos().add(offset);
 
+            int y=0;
             // Figure out if the pillar shape is complete
-            for (j=0;j<PILLAR_OFFSETS[i].getY();j--) {
-                if (j != 0) {
+            for (j=0;j<=offset.getY();j++) {
+                y = offset.getY()-j;
+                if (y != 0) {
                     // Check for the main body of the pillar
-                    if (!PILLAR_BLOCKS.contains(world.getBlockState(pillarPos.down(j)).getBlock())) {
+                    if (!PILLAR_BLOCKS.contains(world.getBlockState(pillarPos.down(y)).getBlock())) {
                         break;
                     }
                 }else{
@@ -285,10 +302,10 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
     }
     @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        return true;
+        return slot == 0;
     }
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return dir == Direction.DOWN;
+        return dir == Direction.DOWN && slot == 1;
     }
 }

@@ -35,6 +35,16 @@ public class AlchemicalWorkbenchBlock extends BlockWithEntity {
         return new AlchemicalWorkbenchBlockEntity();
     }
 
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+        if (itemStack.hasCustomName()) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof AlchemicalWorkbenchBlockEntity) {
+                ((AlchemicalWorkbenchBlockEntity)blockEntity).setCustomName(itemStack.getName());
+            }
+        }
+    }
+
     // On right clicked...
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {

@@ -55,8 +55,8 @@ public class AlchemicalWorkbenchScreenHandler extends ScreenHandler {
 
 
     // Getters for the screen
-    public int getEntropyMeterAmount() {
-        return propertyDelegate.get(0);
+    public float getEntropyPercentage() {
+        return ((float)propertyDelegate.get(0))/AlchemicalWorkbenchBlockEntity.MAX_ENTROPY;
     }
     public int getConversionProgress() {
         return propertyDelegate.get(1);

@@ -1,0 +1,14 @@
+[
+  "linear alchemicalbricks:unstable_block alchemicalbricks:unstable_matter 0",
+  "linear minecraft:ender_chest alchemicalbricks:alchemical_workbench 0",
+
+  "cyclical minecraft:oak_log minecraft:spruce_log minecraft:birch_log minecraft:jungle_log minecraft:acacia_log minecraft:dark_oak_log 2",
+  "cyclical minecraft:oak_planks minecraft:spruce_planks minecraft:birch_planks minecraft:jungle_planks minecraft:acacia_planks minecraft:dark_oak_planks 2",
+  "linear minecraft:coal_block minecraft:iron_ore 5",
+  "linear minecraft:iron_block minecraft:gold_ore 10",
+  "linear minecraft:gold_block minecraft:emerald_ore 20",
+  "linear minecraft:emerald_block minecraft:diamond_ore 40",
+  "linear minecraft:diamond_block minecraft:coal_ore 5",
+  "symmetrical minecraft:stone minecraft:cobblestone 1",
+  "symmetrical minecraft:sand minecraft:red_sand 1",
+]

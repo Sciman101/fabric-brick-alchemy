@@ -43,6 +43,13 @@ public class AlchemyRecipes {
         addRecipe(Blocks.ANDESITE,Blocks.GRANITE);
         addRecipe(Blocks.GRANITE,Blocks.DIORITE);
 
+        // Ore cycle
+        addRecipe(Blocks.COAL_BLOCK,Blocks.IRON_ORE);
+        addRecipe(Blocks.IRON_BLOCK,Blocks.GOLD_ORE);
+        addRecipe(Blocks.GOLD_BLOCK,Blocks.EMERALD_ORE);
+        addRecipe(Blocks.EMERALD_BLOCK,Blocks.DIAMOND_ORE);
+        addRecipe(Blocks.DIAMOND_BLOCK,Blocks.COAL_ORE);
+
         // Log cycle
         addRecipe(Blocks.OAK_LOG,Blocks.SPRUCE_LOG);
         addRecipe(Blocks.SPRUCE_LOG,Blocks.BIRCH_LOG);
