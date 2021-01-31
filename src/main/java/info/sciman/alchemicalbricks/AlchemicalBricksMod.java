@@ -47,7 +47,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 	/* META */
 	public static final String MODID = "alchemicalbricks";
-	public static final RuntimeResourcePack RESOURCE_PACK = RuntimeResourcePack.create(MODID+":pack");
+	public static final RuntimeResourcePack RESOURCE_PACK = RuntimeResourcePack.create(MODID+":dyn_resources");
 
 	/* ITEMS */
 	public static Item ALCHEMICAL_BRICK;

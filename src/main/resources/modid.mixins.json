@@ -4,6 +4,7 @@
   "package": "info.sciman.alchemicalbricks.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "RuntimeResourcePackImplAccessorMixin"
   ],
   "client": [
     "ClientPlayNetworkHandlerMixin"
