@@ -171,7 +171,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 		DispenserBlock.registerBehavior(UNSTABLE_BRICK,brickThrowBehaviour);
 
 		// Register ARRP resources
-		TransmutationGenerator.init();
+		TransmutationGenerator.addBaseTransmutation();
 
 		// Register RRP
 		RRPCallback.EVENT.register(a -> a.add(RESOURCE_PACK));

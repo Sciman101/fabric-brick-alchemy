@@ -3,13 +3,13 @@ package info.sciman.alchemicalbricks.recipe;
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import info.sciman.alchemicalbricks.mixin.RuntimeResourcePackImplAccessorMixin;
 import net.devtech.arrp.json.recipe.JIngredient;
-import net.devtech.arrp.json.recipe.JIngredients;
-import net.devtech.arrp.json.recipe.JResult;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+
+import java.util.stream.Stream;
 
 
 /**
@@ -19,34 +19,83 @@ import net.minecraft.util.registry.Registry;
  */
 public class TransmutationGenerator {
 
-    public static void init() {
-        addTransmutation(AlchemicalBricksMod.id("test"),JTransmutation.transmutation(
-                JIngredient.ingredient().item(Blocks.DIAMOND_BLOCK.asItem()),
-                "minecraft:coal_block",
-                5,
-                TransmutationRecipe.AlchemyContext.ANY
-                ));
+    private static int generatedTransmutationCount = 0;
+
+    public static void addBaseTransmutation() {
+        // Add recipes
+
+        // Core recipes
+        addLinearTransmutation(Blocks.ENDER_CHEST,AlchemicalBricksMod.ALCHEMICAL_WORKBENCH,0, TransmutationRecipe.AlchemyContext.BRICK);
+        addLinearTransmutation(AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(),AlchemicalBricksMod.UNSTABLE_MATTER,100, TransmutationRecipe.AlchemyContext.ANY);
+
+        // Basic recipes
+        addSymmetricalTransmutation(Blocks.SAND,Blocks.RED_SAND,1, TransmutationRecipe.AlchemyContext.ANY);
+        addSymmetricalTransmutation(Blocks.COBBLESTONE,Blocks.STONE,1, TransmutationRecipe.AlchemyContext.ANY);
+
+        // Ore sequence
+        addLinearTransmutation(Blocks.COAL_BLOCK,Blocks.IRON_ORE,5, TransmutationRecipe.AlchemyContext.ANY);
+        addLinearTransmutation(Blocks.IRON_BLOCK,Blocks.GOLD_ORE,10, TransmutationRecipe.AlchemyContext.ANY);
+        addLinearTransmutation(Blocks.GOLD_BLOCK,Blocks.EMERALD_ORE,40, TransmutationRecipe.AlchemyContext.ANY);
+        addLinearTransmutation(Blocks.EMERALD_BLOCK,Blocks.DIAMOND_ORE,50, TransmutationRecipe.AlchemyContext.ANY);
+        addLinearTransmutation(Blocks.DIAMOND_BLOCK,Blocks.COAL_BLOCK,0, TransmutationRecipe.AlchemyContext.ANY);
+
+        // Wood transformations
+        addCyclicalTransmutation(1, TransmutationRecipe.AlchemyContext.ANY,
+                Blocks.OAK_LOG,Blocks.SPRUCE_LOG,Blocks.BIRCH_LOG,Blocks.JUNGLE_LOG,Blocks.ACACIA_LOG,Blocks.DARK_OAK_LOG);
+        addCyclicalTransmutation(1, TransmutationRecipe.AlchemyContext.ANY,
+                Blocks.OAK_PLANKS,Blocks.SPRUCE_PLANKS,Blocks.BIRCH_PLANKS,Blocks.JUNGLE_PLANKS,Blocks.ACACIA_PLANKS,Blocks.DARK_OAK_PLANKS);
+        addCyclicalTransmutation(1, TransmutationRecipe.AlchemyContext.ANY,
+                Blocks.STRIPPED_OAK_LOG,Blocks.STRIPPED_SPRUCE_LOG,Blocks.STRIPPED_BIRCH_LOG,Blocks.STRIPPED_JUNGLE_LOG,Blocks.STRIPPED_ACACIA_LOG,Blocks.STRIPPED_DARK_OAK_LOG);
+        addCyclicalTransmutation(1, TransmutationRecipe.AlchemyContext.ANY,
+                Blocks.OAK_WOOD,Blocks.SPRUCE_WOOD,Blocks.BIRCH_WOOD,Blocks.JUNGLE_WOOD,Blocks.ACACIA_WOOD,Blocks.DARK_OAK_WOOD);
     }
 
 
-    // Add a recipe
+    // Add a recipe (item -> item)
     public static void addLinearTransmutation(Item input, Item output, int entropy, TransmutationRecipe.AlchemyContext context) {
-        String inputId = Registry.ITEM.getId(input).toString();
-        String outputId = Registry.ITEM.getId(output).toString();
+        // Create a (hopefully) unique id for this recipe
+        Identifier inputId = Registry.ITEM.getId(input);
+        Identifier outputId = Registry.ITEM.getId(output);
+        String path = String.format("generated%d_%s_to_%s", generatedTransmutationCount, inputId.getPath(),outputId.getPath());
+        generatedTransmutationCount++;
+        Identifier id = AlchemicalBricksMod.id(path);
 
-        Identifier id = AlchemicalBricksMod.id(inputId+"_to_"+outputId);
+        // Add it
         addTransmutation(id, JTransmutation.transmutation(
                 JIngredient.ingredient().item(input),
-                outputId,
+                outputId.toString(),
                 entropy,
                 context
         ));
     }
 
-    public static void addSymmetricTransmutation(Item a, Item b, int entropy, TransmutationRecipe.AlchemyContext context) {
-
+    // Add a symmetrical recipe
+    public static void addSymmetricalTransmutation(Item input, Item output, int entropy, TransmutationRecipe.AlchemyContext context) {
+        addLinearTransmutation(input,output,entropy,context);
+        addLinearTransmutation(output,input,entropy,context);
     }
 
+    // Add a cyclical recipe
+    public static void addCyclicalTransmutation(int entropy, TransmutationRecipe.AlchemyContext context, Item... items) {
+        for (int i=0;i<items.length;i++) {
+            Item a = items[i];
+            Item b = i < items.length-1 ? items[i+1] : items[0];
+
+            addLinearTransmutation(a,b,entropy,context);
+        }
+    }
+
+    // Block alternatives
+    public static void addLinearTransmutation(Block input, Block output, int entropy, TransmutationRecipe.AlchemyContext context) {
+        addLinearTransmutation(input.asItem(),output.asItem(),entropy,context);
+    }
+    public static void addSymmetricalTransmutation(Block input, Block output, int entropy, TransmutationRecipe.AlchemyContext context) {
+        addSymmetricalTransmutation(input.asItem(),output.asItem(),entropy,context);
+    }
+    public static void addCyclicalTransmutation(int entropy, TransmutationRecipe.AlchemyContext context, Block... blocks) {
+        Item[] items = Stream.of(blocks).map(b -> b.asItem()).toArray(Item[]::new);
+        addCyclicalTransmutation(entropy,context,items);
+    }
 
     // Adds a transmutation via JTransmutationRecipe
     public static byte[] addTransmutation(Identifier id, JTransmutation recipe) {
