@@ -3,7 +3,6 @@ package info.sciman.alchemicalbricks.block.entity;
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
-import info.sciman.alchemicalbricks.recipe.AlchemyRecipes;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
@@ -214,7 +213,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                 }
             }
         }else{
-
+            // Client effects
             if (numPillars > 0) {
                 BlockPos ppos, pos;
                 pos = getPos();

@@ -1,6 +1,5 @@
 package info.sciman.alchemicalbricks.util;
 
-import info.sciman.alchemicalbricks.recipe.AlchemyRecipes;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;

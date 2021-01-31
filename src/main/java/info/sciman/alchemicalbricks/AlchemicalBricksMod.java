@@ -4,11 +4,14 @@ import info.sciman.alchemicalbricks.block.AlchemicalWorkbenchBlock;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import info.sciman.alchemicalbricks.block.entity.AlchemicalWorkbenchBlockEntity;
 import info.sciman.alchemicalbricks.block.entity.UnstableBlockEntity;
+import info.sciman.alchemicalbricks.recipe.TransmutationGenerator;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipeSerializer;
 import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
-import info.sciman.alchemicalbricks.recipe.AlchemyRecipes;
 import info.sciman.alchemicalbricks.util.CustomDamageSource;
+import net.devtech.arrp.api.RRPCallback;
+import net.devtech.arrp.api.RuntimeResourcePack;
+import net.devtech.arrp.json.models.JModel;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -44,6 +47,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 	/* META */
 	public static final String MODID = "alchemicalbricks";
+	public static final RuntimeResourcePack RESOURCE_PACK = RuntimeResourcePack.create(MODID+":pack");
 
 	/* ITEMS */
 	public static Item ALCHEMICAL_BRICK;
@@ -113,9 +117,6 @@ public class AlchemicalBricksMod implements ModInitializer {
 		// Status effects
 		Registry.register(Registry.STATUS_EFFECT,id("instability"),INSTABILITY);
 
-		// TEMP
-		AlchemyRecipes.init();
-
 		// Register use item listener
 		UseItemCallback.EVENT.register((player, world, hand) -> {
 
@@ -168,6 +169,12 @@ public class AlchemicalBricksMod implements ModInitializer {
 		DispenserBlock.registerBehavior(Items.NETHER_BRICK,brickThrowBehaviour);
 		DispenserBlock.registerBehavior(ALCHEMICAL_BRICK,brickThrowBehaviour);
 		DispenserBlock.registerBehavior(UNSTABLE_BRICK,brickThrowBehaviour);
+
+		// Register ARRP resources
+		TransmutationGenerator.init();
+
+		// Register RRP
+		RRPCallback.EVENT.register(a -> a.add(RESOURCE_PACK));
 	}
 
 	/**
