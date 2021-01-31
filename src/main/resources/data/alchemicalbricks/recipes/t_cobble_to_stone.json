@@ -1,0 +1,9 @@
+{
+  "type": "alchemicalbricks:transmutation",
+  "input": {
+    "item": "minecraft:cobblestone"
+  },
+  "outputItem": "minecraft:stone",
+  "entropy": 2,
+  "context": "any"
+}

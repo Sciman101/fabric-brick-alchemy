@@ -1,4 +1,4 @@
-package info.sciman.alchemicalbricks.util;
+package info.sciman.alchemicalbricks.recipe;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import net.minecraft.block.Block;
@@ -15,12 +15,6 @@ import java.util.HashMap;
 // Where format is
 // <input> -> (one way)/<> (two ways) <output> <entropy>
 public class AlchemyRecipes {
-
-    public enum AlchemyContext {
-        THROWN_BRICK, // this recipe only works by throwing a brick by hand
-        ALTAR, // this recipe only works at an altar
-        ANY // This recipe works anywhere
-    }
 
     public static final HashMap<Item,Item> RECIPES = new HashMap<>();
 

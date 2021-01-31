@@ -1,8 +1,11 @@
 package info.sciman.alchemicalbricks.util;
 
+import info.sciman.alchemicalbricks.recipe.AlchemyRecipes;
+import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,6 +17,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Optional;
 import java.util.Random;
 
 public class AlchemyHelper {
@@ -27,34 +31,45 @@ public class AlchemyHelper {
     public static boolean performWorldTransmutation(World world, BlockPos pos) {
 
         // Try and perform transmutation
-        Item blockItem = world.getBlockState(pos).getBlock().asItem();
-        Item resultItem = AlchemyRecipes.getConversion(blockItem);
+        SimpleInventory inventory = new SimpleInventory(new ItemStack(world.getBlockState(pos).getBlock().asItem()));
+
+        Optional<TransmutationRecipe> match = world.getRecipeManager().getFirstMatch(TransmutationRecipe.Type.INSTANCE,inventory,world);
 
         // Make sure a result exists
-        if (resultItem != null) {
+        if (match.isPresent()) {
 
-            // Perform transmutation
-            if (resultItem instanceof BlockItem) {
-                // Set block
-                Block block1 = ((BlockItem)resultItem).getBlock();
-                world.setBlockState(pos,block1.getDefaultState());
+            TransmutationRecipe recipe = match.get();
+            if (recipe.getContext() == TransmutationRecipe.AlchemyContext.BRICK ||
+                recipe.getContext() == TransmutationRecipe.AlchemyContext.ANY) {
 
-            }else{
-                // Drop item
-                ItemEntity itemEntity = new ItemEntity(world,pos.getX()+0.5,pos.getY()+0.5,pos.getZ()+0.5,new ItemStack(resultItem));
-                world.spawnEntity(itemEntity);
-                // Remove the old block
-                world.setBlockState(pos, Blocks.AIR.getDefaultState());
+                // Get output item
+                Item resultItem = match.get().getOutput().getItem();
+
+                // Perform transmutation
+                if (resultItem instanceof BlockItem) {
+                    // Set block
+                    Block block1 = ((BlockItem) resultItem).getBlock();
+                    world.setBlockState(pos, block1.getDefaultState());
+
+                } else {
+                    // Drop item
+                    ItemEntity itemEntity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, new ItemStack(resultItem));
+                    world.spawnEntity(itemEntity);
+                    // Remove the old block
+                    world.setBlockState(pos, Blocks.AIR.getDefaultState());
+                }
+
+                // Play SFX and particle FX
+                if (world.isClient()) {
+                    // Particles
+                    createTransmutationParticles(pos, world, ParticleTypes.FLAME);
+                } else {
+                    world.playSound(null, pos, SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.BLOCKS, 1f, 1f);
+                }
+                return true;
+            }else {
+                return false;
             }
-
-            // Play SFX and particle FX
-            if (world.isClient()) {
-                // Particles
-                createTransmutationParticles(pos,world,ParticleTypes.FLAME);
-            }else{
-                world.playSound(null,pos, SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.BLOCKS,1f,1f);
-            }
-            return true;
 
         }else{
             return false;

@@ -4,8 +4,10 @@ import info.sciman.alchemicalbricks.block.AlchemicalWorkbenchBlock;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import info.sciman.alchemicalbricks.block.entity.AlchemicalWorkbenchBlockEntity;
 import info.sciman.alchemicalbricks.block.entity.UnstableBlockEntity;
+import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
+import info.sciman.alchemicalbricks.recipe.TransmutationRecipeSerializer;
 import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
-import info.sciman.alchemicalbricks.util.AlchemyRecipes;
+import info.sciman.alchemicalbricks.recipe.AlchemyRecipes;
 import info.sciman.alchemicalbricks.util.CustomDamageSource;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
@@ -86,6 +88,10 @@ public class AlchemicalBricksMod implements ModInitializer {
 
     @Override
 	public void onInitialize() {
+
+		// Recipe type and serializer
+		Registry.register(Registry.RECIPE_SERIALIZER, TransmutationRecipeSerializer.ID,TransmutationRecipeSerializer.INSTANCE);
+		Registry.register(Registry.RECIPE_TYPE,id(TransmutationRecipe.Type.ID),TransmutationRecipe.Type.INSTANCE);
 
 		// Register items
 		Registry.register(Registry.ITEM, id("alchemical_brick"), ALCHEMICAL_BRICK);

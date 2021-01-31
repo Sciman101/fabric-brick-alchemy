@@ -1,8 +1,9 @@
 package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
+import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
-import info.sciman.alchemicalbricks.util.AlchemyRecipes;
+import info.sciman.alchemicalbricks.recipe.AlchemyRecipes;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
@@ -13,18 +14,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.Property;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Tickable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -32,6 +32,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.Random;
 
 public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, Tickable {
@@ -68,7 +69,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
 
     // Used for transmutation
     private Item prevInputItem = null; // What was the last thing we had input?
-    private ItemStack cachedOutput = ItemStack.EMPTY; // This is what we will produce
+    private TransmutationRecipe cachedRecipe; // This is what we will produce
     private boolean transmuting = false;
 
     // PropertyDelegate to sync values
@@ -139,12 +140,22 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                 if (!inputStack.isEmpty()) {
                     // Check for a change in item
                     if (inputStack.getItem() != prevInputItem) {
+
+                        // Try and perform transmutation
+                        SimpleInventory inventory = new SimpleInventory(inputStack);
+                        Optional<TransmutationRecipe> match = world.getRecipeManager().getFirstMatch(TransmutationRecipe.Type.INSTANCE,inventory,world);
+
                         // this should only get called when an item is swapped in the slot
-                        Item outputItem = AlchemyRecipes.getConversion(inputStack.getItem());
-                        if (outputItem != null) {
-                            cachedOutput = new ItemStack(outputItem);
-                            transmuting = true;
-                            conversionProgress = 0;
+                        if (match.isPresent()) {
+
+                            TransmutationRecipe.AlchemyContext ctx = match.get().getContext();
+                            if (ctx == TransmutationRecipe.AlchemyContext.ALTAR ||
+                                ctx == TransmutationRecipe.AlchemyContext.ANY) {
+                                // Cache recipe
+                                cachedRecipe = match.get();
+                                transmuting = true;
+                                conversionProgress = 0;
+                            }
                         }
                     }
                     prevInputItem = inputStack.getItem();
@@ -159,7 +170,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                     transmuting = false;
                     conversionProgress = 0;
                     prevInputItem = null;
-                    cachedOutput = ItemStack.EMPTY;
+                    cachedRecipe = null;
                 }else{
 
                     ItemStack outputStack = getItems().get(1);
@@ -167,7 +178,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                     if (numPillars > 0) {
 
                         // Make sure the output matches the cached output
-                        if ((outputStack.getItem() == cachedOutput.getItem() || outputStack.isEmpty()) && outputStack.getCount() + cachedOutput.getCount() <= outputStack.getMaxCount()) {
+                        if ((outputStack.getItem() == cachedRecipe.getOutput().getItem() || outputStack.isEmpty()) && outputStack.getCount() + 1 <= outputStack.getMaxCount()) {
                             // Increment progress based on the number of pillars surrounding the altar
                             if (world.getTime() % ((9 - numPillars) * 2L) == 0L) {
                                 conversionProgress++;
@@ -178,16 +189,16 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                                     inputStack.decrement(1);
                                     // Set output
                                     if (outputStack.isEmpty()) {
-                                        getItems().set(1,cachedOutput.copy());
+                                        getItems().set(1,cachedRecipe.getOutput().copy());
                                     }else {
-                                        outputStack.increment(cachedOutput.getCount());
+                                        outputStack.increment(1);
                                     }
 
                                     // Reset progress
                                     conversionProgress = 0;
 
                                     // Add entropy
-                                    this.entropy++;
+                                    this.entropy += cachedRecipe.getEntropy();
 
                                     // Uh oh
                                     if (entropy > MAX_ENTROPY) {
