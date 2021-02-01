@@ -3,24 +3,22 @@ package info.sciman.alchemicalbricks.block.entity;
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.sound.SoundEvents;
 
 public class EntropyVesselBlockEntity extends AbstractEntropyContainerBlockEntity {
-
-    private int entropy = 0;
 
     public EntropyVesselBlockEntity() {
         super(AlchemicalBricksMod.ENTROPY_VESSEL_ENTITY);
     }
 
-    public int getEntropy() {
-        return entropy;
-    }
-
     @Override
     public int getEntropyCapacity() {
         return 250;
+    }
+
+    @Override
+    public boolean addEntropy(int amt) {
+        return super.addEntropy(amt);
     }
 
     @Override
@@ -31,7 +29,9 @@ public class EntropyVesselBlockEntity extends AbstractEntropyContainerBlockEntit
     @Override
     void onEntropyOverflow() {
         if (!world.isClient()) {
+            // Break this block
             world.breakBlock(pos, false);
+            SoundEvents.ENTITY_PLAYER_HURT_SWEET_BERRY_BUSH
         }
     }
 
