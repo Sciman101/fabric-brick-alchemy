@@ -91,7 +91,7 @@ public class AlchemicAltarBlock extends BlockWithEntity {
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
         BlockEntity be = world.getBlockEntity(pos);
         if (be instanceof AlchemicAltarBlockEntity) {
-            return (int) ((((float)((AlchemicAltarBlockEntity)be).getEntropy()) / AlchemicAltarBlockEntity.MAX_ENTROPY) * 15);
+            return (int) ((((float)((AlchemicAltarBlockEntity)be).getEntropy()) / ((AlchemicAltarBlockEntity) be).getEntropyCapacity()) * 15);
         }else{
             return 0;
         }

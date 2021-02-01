@@ -36,9 +36,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.Random;
 
-public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, Tickable {
+public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, Tickable {
 
-    public static final int MAX_ENTROPY = 100;
     // Everything the altar pillars can be made of
     private static final Tag<Block> PILLAR_BLOCKS;
     private static final Tag<EntityType<?>> SUMMONS;
@@ -80,7 +79,7 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
         @Override
         public int get(int index) {
             if (index == 0) {
-                return entropy;
+                return getEntropy();
             }else if (index == 1) {
                 return conversionProgress;
             }
@@ -107,8 +106,9 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
         super(AlchemicalBricksMod.ALCHEMICAL_WORKBENCH_ENTITY);
     }
 
-    public int getEntropy() {
-        return entropy;
+    @Override
+    public int getEntropyCapacity() {
+        return 100;
     }
 
     public void setCustomName(Text customName) {
@@ -137,8 +137,6 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
 
     @Override
     public void tick() {
-
-        boolean dirty = false;
 
         if (!world.isClient()) {
 
@@ -211,35 +209,7 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
                                     conversionProgress = 0;
 
                                     // Add entropy
-                                    this.entropy += cachedRecipe.getEntropy();
-
-                                    // Check for overflow
-                                    if (this.entropy > MAX_ENTROPY) {
-                                        // Bad stuff
-                                        BlockPos pos = getPos();
-                                        this.world.createExplosion(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 8f, Explosion.DestructionType.DESTROY);
-
-                                        for (int x=-1;x<2;x++) {
-                                            for (int y=-1;y<2;y++) {
-                                                for (int z=-1;z<2;z++) {
-                                                    if (world.random.nextDouble() < .5) {
-                                                        world.setBlockState(getPos().add(x,y,z),AlchemicalBricksMod.UNSTABLE_BLOCK.getDefaultState());
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                    }else{
-                                        if (world.random.nextInt(MAX_ENTROPY) < entropy) {
-                                            // Do something
-                                        }
-
-                                        // Update visual
-                                        int level = entropy/20;
-                                        if (level > 4) {level = 4;}
-                                        this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicAltarBlock.ACTIVE,transmuting).with(AlchemicAltarBlock.ENTROPY,level));
-                                        dirty = true;
-                                    }
+                                    addEntropy(cachedRecipe.getEntropy());
                                 }
                             }
                         }
@@ -249,13 +219,16 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
                 }
             }
 
+            // Try and move entropy to containers first
+            tryTransferEntropy();
+
             // Update transmuting state
             if (transmuting != wasTransmuting) {
                 // Update visual
                 int level = entropy/20;
                 if (level > 4) {level = 4;}
                 this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicAltarBlock.ACTIVE,transmuting).with(AlchemicAltarBlock.ENTROPY,level));
-                dirty = true;
+                this.markDirty();
             }
 
         }else{
@@ -287,10 +260,70 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
         if (this.world.getTime() % 40L == 0L) {
             updatePillarCount();
         }
+    }
 
-        // Update dirty
-        if (dirty) {
+    /**
+     * Transfer entropy to an adjacent container
+     */
+    void tryTransferEntropy() {
+        if (getEntropy() > 0) {
+            for (int x = -1; x < 2; x++) {
+                for (int y = -1; y < 2; y++) {
+                    for (int z = -1; z < 2; z++) {
+                        if (!(x == 0 && y == 0 && z == 0)) {
+                            // Look for block entity
+                            BlockEntity be = world.getBlockEntity(pos.add(x, y, z));
+                            if (be != null && be instanceof AbstractEntropyContainerBlockEntity) {
+                                AbstractEntropyContainerBlockEntity abe = (AbstractEntropyContainerBlockEntity) be;
+                                // Do transfer
+                                if (abe.canAcceptFromAltar()) {
+                                    abe.addEntropy(1);
+                                    addEntropy(-1);
+
+                                    if (getEntropy() <= 0) {
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean addEntropy(int amt) {
+        if (!super.addEntropy(amt)) {
+
+            // Update visual
+            int level = entropy / 20;
+            if (level > 4) {
+                level = 4;
+            }
+            this.world.setBlockState(this.pos, this.world.getBlockState(pos).with(AlchemicAltarBlock.ACTIVE, transmuting).with(AlchemicAltarBlock.ENTROPY, level));
             this.markDirty();
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    void onEntropyOverflow() {
+        if (!world.isClient()) {
+            // Bad stuff
+            BlockPos pos = getPos();
+            this.world.createExplosion(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 8f, Explosion.DestructionType.DESTROY);
+
+            for (int x=-1;x<2;x++) {
+                for (int y=-1;y<2;y++) {
+                    for (int z=-1;z<2;z++) {
+                        if (world.random.nextDouble() < .5) {
+                            world.setBlockState(getPos().add(x,y,z),AlchemicalBricksMod.UNSTABLE_BLOCK.getDefaultState());
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -330,7 +363,6 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
     @Override
     public void fromTag(BlockState state, CompoundTag tag) {
         super.fromTag(state, tag);
-        entropy = tag.getInt("entropy");
         Inventories.fromTag(tag,items);
     }
 
@@ -338,10 +370,7 @@ public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreen
     @Override
     public CompoundTag toTag(CompoundTag tag) {
         super.toTag(tag);
-
-        tag.putInt("entropy",entropy);
         Inventories.toTag(tag,items);
-
         return tag;
     }
 

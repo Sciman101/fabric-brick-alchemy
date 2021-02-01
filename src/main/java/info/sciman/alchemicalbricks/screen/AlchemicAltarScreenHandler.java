@@ -55,7 +55,7 @@ public class AlchemicAltarScreenHandler extends ScreenHandler {
 
     // Getters for the screen
     public float getEntropyPercentage() {
-        return ((float)propertyDelegate.get(0))/ AlchemicAltarBlockEntity.MAX_ENTROPY;
+        return ((float)propertyDelegate.get(0)) / 100;
     }
     public int getConversionProgress() {
         return propertyDelegate.get(1);
