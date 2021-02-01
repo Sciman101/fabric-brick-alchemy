@@ -25,7 +25,7 @@ public class TransmutationGenerator {
         // Add recipes
 
         // Core recipes
-        addLinearTransmutation(Blocks.ENDER_CHEST,AlchemicalBricksMod.ALCHEMICAL_WORKBENCH,0, TransmutationRecipe.AlchemyContext.BRICK);
+        addLinearTransmutation(Blocks.ENCHANTING_TABLE,AlchemicalBricksMod.ALCHEMIC_ALTAR,0, TransmutationRecipe.AlchemyContext.BRICK);
         addLinearTransmutation(AlchemicalBricksMod.UNSTABLE_BLOCK.asItem(),AlchemicalBricksMod.UNSTABLE_MATTER,100, TransmutationRecipe.AlchemyContext.ANY);
 
         // Basic recipes
@@ -34,9 +34,9 @@ public class TransmutationGenerator {
 
         // Ore sequence
         addLinearTransmutation(Blocks.COAL_BLOCK,Blocks.IRON_ORE,5, TransmutationRecipe.AlchemyContext.ANY);
-        addLinearTransmutation(Blocks.IRON_BLOCK,Blocks.GOLD_ORE,10, TransmutationRecipe.AlchemyContext.ANY);
-        addLinearTransmutation(Blocks.GOLD_BLOCK,Blocks.EMERALD_ORE,40, TransmutationRecipe.AlchemyContext.ANY);
-        addLinearTransmutation(Blocks.EMERALD_BLOCK,Blocks.DIAMOND_ORE,50, TransmutationRecipe.AlchemyContext.ANY);
+        addLinearTransmutation(Blocks.IRON_BLOCK,Blocks.GOLD_ORE,8, TransmutationRecipe.AlchemyContext.ANY);
+        addLinearTransmutation(Blocks.GOLD_BLOCK,Blocks.EMERALD_ORE,20, TransmutationRecipe.AlchemyContext.ANY);
+        addLinearTransmutation(Blocks.EMERALD_BLOCK,Blocks.DIAMOND_ORE,40, TransmutationRecipe.AlchemyContext.ANY);
         addLinearTransmutation(Blocks.DIAMOND_BLOCK,Blocks.COAL_BLOCK,0, TransmutationRecipe.AlchemyContext.ANY);
 
         // Wood transformations
@@ -48,6 +48,8 @@ public class TransmutationGenerator {
                 Blocks.STRIPPED_OAK_LOG,Blocks.STRIPPED_SPRUCE_LOG,Blocks.STRIPPED_BIRCH_LOG,Blocks.STRIPPED_JUNGLE_LOG,Blocks.STRIPPED_ACACIA_LOG,Blocks.STRIPPED_DARK_OAK_LOG);
         addCyclicalTransmutation(1, TransmutationRecipe.AlchemyContext.ANY,
                 Blocks.OAK_WOOD,Blocks.SPRUCE_WOOD,Blocks.BIRCH_WOOD,Blocks.JUNGLE_WOOD,Blocks.ACACIA_WOOD,Blocks.DARK_OAK_WOOD);
+        addCyclicalTransmutation(1, TransmutationRecipe.AlchemyContext.ANY,
+                Blocks.STRIPPED_OAK_WOOD,Blocks.STRIPPED_SPRUCE_WOOD,Blocks.STRIPPED_BIRCH_WOOD,Blocks.STRIPPED_JUNGLE_WOOD,Blocks.STRIPPED_ACACIA_WOOD,Blocks.STRIPPED_DARK_OAK_WOOD);
     }
 
 

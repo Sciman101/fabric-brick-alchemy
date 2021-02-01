@@ -1,14 +1,12 @@
 package info.sciman.alchemicalbricks.block;
 
-import info.sciman.alchemicalbricks.block.entity.AlchemicalWorkbenchBlockEntity;
+import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
@@ -17,17 +15,16 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class AlchemicalWorkbenchBlock extends BlockWithEntity {
+public class AlchemicAltarBlock extends BlockWithEntity {
 
     public static final BooleanProperty ACTIVE = BooleanProperty.of("active");
     public static final IntProperty ENTROPY = IntProperty.of("entropy",0,4);
 
-    public AlchemicalWorkbenchBlock(Settings settings) {
+    public AlchemicAltarBlock(Settings settings) {
         super(settings);
         this.setDefaultState((BlockState)((BlockState)((BlockState)this.getStateManager().getDefaultState()).with(ACTIVE, false).with(ENTROPY,0)));
     }
@@ -41,7 +38,7 @@ public class AlchemicalWorkbenchBlock extends BlockWithEntity {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockView world) {
-        return new AlchemicalWorkbenchBlockEntity();
+        return new AlchemicAltarBlockEntity();
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
@@ -53,8 +50,8 @@ public class AlchemicalWorkbenchBlock extends BlockWithEntity {
     public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
         if (itemStack.hasCustomName()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof AlchemicalWorkbenchBlockEntity) {
-                ((AlchemicalWorkbenchBlockEntity)blockEntity).setCustomName(itemStack.getName());
+            if (blockEntity instanceof AlchemicAltarBlockEntity) {
+                ((AlchemicAltarBlockEntity)blockEntity).setCustomName(itemStack.getName());
             }
         }
     }
@@ -77,8 +74,8 @@ public class AlchemicalWorkbenchBlock extends BlockWithEntity {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof AlchemicalWorkbenchBlockEntity) {
-                ItemScatterer.spawn(world, pos, (AlchemicalWorkbenchBlockEntity)blockEntity);
+            if (blockEntity instanceof AlchemicAltarBlockEntity) {
+                ItemScatterer.spawn(world, pos, (AlchemicAltarBlockEntity)blockEntity);
                 // update comparators
                 world.updateComparators(pos,this);
             }
@@ -93,8 +90,8 @@ public class AlchemicalWorkbenchBlock extends BlockWithEntity {
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
         BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof AlchemicalWorkbenchBlockEntity) {
-            return (int) ((((float)((AlchemicalWorkbenchBlockEntity)be).getEntropy()) / AlchemicalWorkbenchBlockEntity.MAX_ENTROPY) * 15);
+        if (be instanceof AlchemicAltarBlockEntity) {
+            return (int) ((((float)((AlchemicAltarBlockEntity)be).getEntropy()) / AlchemicAltarBlockEntity.MAX_ENTROPY) * 15);
         }else{
             return 0;
         }

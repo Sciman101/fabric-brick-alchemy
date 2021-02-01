@@ -1,17 +1,16 @@
 package info.sciman.alchemicalbricks;
 
-import info.sciman.alchemicalbricks.block.AlchemicalWorkbenchBlock;
+import info.sciman.alchemicalbricks.block.AlchemicAltarBlock;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
-import info.sciman.alchemicalbricks.block.entity.AlchemicalWorkbenchBlockEntity;
+import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
 import info.sciman.alchemicalbricks.block.entity.UnstableBlockEntity;
 import info.sciman.alchemicalbricks.recipe.TransmutationGenerator;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipeSerializer;
-import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
+import info.sciman.alchemicalbricks.screen.AlchemicAltarScreenHandler;
 import info.sciman.alchemicalbricks.util.CustomDamageSource;
 import net.devtech.arrp.api.RRPCallback;
 import net.devtech.arrp.api.RuntimeResourcePack;
-import net.devtech.arrp.json.models.JModel;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -62,7 +61,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 	public static final Block POLISHED_ALCHEMICAL_BRICKS = new Block(FabricBlockSettings.of(Material.STONE).hardness(3.0f).luminance(6));
 	public static final Block POLISHED_ALCHEMICAL_BRICK_SLAB = new SlabBlock(FabricBlockSettings.of(Material.STONE).hardness(3.0f).luminance(6));
 	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing());
-	public static final Block ALCHEMICAL_WORKBENCH = new AlchemicalWorkbenchBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f).luminance(8));
+	public static final Block ALCHEMIC_ALTAR = new AlchemicAltarBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f).luminance(8));
 
 	/* STATUS */
 	public static final StatusEffect INSTABILITY = new InstabilityStatusEffect();
@@ -77,17 +76,17 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 	/* BLOCK ENTITIES */
 	public static BlockEntityType<UnstableBlockEntity> UNSTABLE_BLOCK_ENTITY;
-	public static BlockEntityType<AlchemicalWorkbenchBlockEntity> ALCHEMICAL_WORKBENCH_ENTITY;
+	public static BlockEntityType<AlchemicAltarBlockEntity> ALCHEMICAL_WORKBENCH_ENTITY;
 
 	/* SCREEN HANDLERS */
-	public static final ScreenHandlerType<AlchemicalWorkbenchScreenHandler> ALCHEMICAL_WORKBENCH_SCREEN_HANDLER;
+	public static final ScreenHandlerType<AlchemicAltarScreenHandler> ALCHEMICAL_WORKBENCH_SCREEN_HANDLER;
 
 	// Initialize this here and not with the other items since it gets used as an icon
 	static {
 		ALCHEMICAL_BRICK = new Item(new Item.Settings().group(ALCHEMICAL_BRICKS_GROUP));
 
 		// Screen types
-		ALCHEMICAL_WORKBENCH_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(Registry.BLOCK.getId(ALCHEMICAL_WORKBENCH),AlchemicalWorkbenchScreenHandler::new);
+		ALCHEMICAL_WORKBENCH_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(Registry.BLOCK.getId(ALCHEMIC_ALTAR), AlchemicAltarScreenHandler::new);
 	}
 
     @Override
@@ -108,11 +107,11 @@ public class AlchemicalBricksMod implements ModInitializer {
 		registerBlockAndItem(id("polished_alchemical_bricks"), POLISHED_ALCHEMICAL_BRICKS, ALCHEMICAL_BRICKS_GROUP);
 		registerBlockAndItem(id("polished_alchemical_brick_slab"), POLISHED_ALCHEMICAL_BRICK_SLAB, ALCHEMICAL_BRICKS_GROUP);
 		registerBlockAndItem(id("unstable_block"), UNSTABLE_BLOCK, ALCHEMICAL_BRICKS_GROUP);
-		registerBlockAndItem(id("alchemical_workbench"), ALCHEMICAL_WORKBENCH, ALCHEMICAL_BRICKS_GROUP);
+		registerBlockAndItem(id("alchemic_altar"), ALCHEMIC_ALTAR, ALCHEMICAL_BRICKS_GROUP);
 
 		// Register block entites
 		UNSTABLE_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,id("unstable_block_entity"),BlockEntityType.Builder.create(UnstableBlockEntity::new, UNSTABLE_BLOCK).build(null));
-		ALCHEMICAL_WORKBENCH_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ALCHEMICAL_WORKBENCH),BlockEntityType.Builder.create(AlchemicalWorkbenchBlockEntity::new, ALCHEMICAL_WORKBENCH).build(null));
+		ALCHEMICAL_WORKBENCH_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ALCHEMIC_ALTAR),BlockEntityType.Builder.create(AlchemicAltarBlockEntity::new, ALCHEMIC_ALTAR).build(null));
 
 		// Status effects
 		Registry.register(Registry.STATUS_EFFECT,id("instability"),INSTABILITY);

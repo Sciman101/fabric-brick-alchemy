@@ -11,15 +11,15 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-public class AlchemicalWorkbenchScreen extends HandledScreen<ScreenHandler> {
+public class AlchemicAltarScreen extends HandledScreen<ScreenHandler> {
     private static final Identifier TEXTURE = AlchemicalBricksMod.id("textures/gui/container/alchemical_workbench_gui.png");
 
-    AlchemicalWorkbenchScreenHandler screenHandler;
+    AlchemicAltarScreenHandler screenHandler;
 
 
-    public AlchemicalWorkbenchScreen(ScreenHandler handler, PlayerInventory inventory, Text title) {
+    public AlchemicAltarScreen(ScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
-        screenHandler = (AlchemicalWorkbenchScreenHandler) handler;
+        screenHandler = (AlchemicAltarScreenHandler) handler;
     }
 
     @Override

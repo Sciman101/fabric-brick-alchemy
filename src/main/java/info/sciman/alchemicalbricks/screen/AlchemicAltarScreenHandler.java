@@ -1,8 +1,7 @@
 package info.sciman.alchemicalbricks.screen;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
-import info.sciman.alchemicalbricks.block.entity.AlchemicalWorkbenchBlockEntity;
-import info.sciman.alchemicalbricks.util.ImplementedInventory;
+import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -14,19 +13,19 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.FurnaceOutputSlot;
 import net.minecraft.screen.slot.Slot;
 
-public class AlchemicalWorkbenchScreenHandler extends ScreenHandler {
+public class AlchemicAltarScreenHandler extends ScreenHandler {
 
     private final Inventory inventory;
     private final PropertyDelegate propertyDelegate;
 
     // Client only screenhandler constructor
-    public AlchemicalWorkbenchScreenHandler(int syncId, PlayerInventory inv) {
-        this(syncId,inv,new SimpleInventory(2),new ArrayPropertyDelegate(2));
+    public AlchemicAltarScreenHandler(int syncId, PlayerInventory inv) {
+        this(syncId,inv,new SimpleInventory(3),new ArrayPropertyDelegate(2));
     }
 
-    public AlchemicalWorkbenchScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
+    public AlchemicAltarScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
         super(AlchemicalBricksMod.ALCHEMICAL_WORKBENCH_SCREEN_HANDLER,syncId);
-        checkSize(inventory,2);
+        checkSize(inventory,3);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
 
@@ -56,7 +55,7 @@ public class AlchemicalWorkbenchScreenHandler extends ScreenHandler {
 
     // Getters for the screen
     public float getEntropyPercentage() {
-        return ((float)propertyDelegate.get(0))/AlchemicalWorkbenchBlockEntity.MAX_ENTROPY;
+        return ((float)propertyDelegate.get(0))/ AlchemicAltarBlockEntity.MAX_ENTROPY;
     }
     public int getConversionProgress() {
         return propertyDelegate.get(1);

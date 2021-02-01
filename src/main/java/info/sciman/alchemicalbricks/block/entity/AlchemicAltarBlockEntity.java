@@ -1,19 +1,16 @@
 package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
-import info.sciman.alchemicalbricks.block.AlchemicalWorkbenchBlock;
+import info.sciman.alchemicalbricks.block.AlchemicAltarBlock;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
-import info.sciman.alchemicalbricks.screen.AlchemicalWorkbenchScreenHandler;
+import info.sciman.alchemicalbricks.screen.AlchemicAltarScreenHandler;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
-import net.fabricmc.fabric.impl.biome.modification.BuiltInRegistryKeys;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
@@ -26,8 +23,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -35,15 +30,13 @@ import net.minecraft.util.Tickable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.explosion.Explosion;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Random;
 
-public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, Tickable {
+public class AlchemicAltarBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, Tickable {
 
     public static final int MAX_ENTROPY = 100;
     // Everything the altar pillars can be made of
@@ -75,7 +68,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
     private int numPillars = 0;
     private byte pillarArrangement;
     // Used to store input/output
-    private final DefaultedList<ItemStack> items = DefaultedList.ofSize(2, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> items = DefaultedList.ofSize(3, ItemStack.EMPTY);
 
     // Used for transmutation
     private Item prevInputItem = null; // What was the last thing we had input?
@@ -110,7 +103,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
     };
 
     // Default constructor
-    public AlchemicalWorkbenchBlockEntity() {
+    public AlchemicAltarBlockEntity() {
         super(AlchemicalBricksMod.ALCHEMICAL_WORKBENCH_ENTITY);
     }
 
@@ -139,7 +132,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-        return new AlchemicalWorkbenchScreenHandler(syncId,inv,this,propertyDelegate);
+        return new AlchemicAltarScreenHandler(syncId,inv,this,propertyDelegate);
     }
 
     @Override
@@ -194,7 +187,13 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                         // Make sure the output matches the cached output
                         if ((outputStack.getItem() == cachedRecipe.getOutput().getItem() || outputStack.isEmpty()) && outputStack.getCount() + 1 <= outputStack.getMaxCount()) {
                             // Increment progress based on the number of pillars surrounding the altar
-                            if (world.getTime() % ((9 - numPillars) * 2L) == 0L) {
+                            // Having more entropy also decreases efficiency
+                            int period = ((9 - numPillars) * 2);
+                            if (entropy >= 20) {
+                                period *= entropy/20;
+                            }
+
+                            if (world.getTime() % period == 0L) {
                                 conversionProgress++;
                                 if (conversionProgress > 24) {
                                     // Transmutation successful!
@@ -215,7 +214,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                                     this.entropy += cachedRecipe.getEntropy();
 
                                     // Check for overflow
-                                    if (this.entropy >= MAX_ENTROPY) {
+                                    if (this.entropy > MAX_ENTROPY) {
                                         // Bad stuff
                                         BlockPos pos = getPos();
                                         this.world.createExplosion(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 8f, Explosion.DestructionType.DESTROY);
@@ -238,7 +237,7 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                                         // Update visual
                                         int level = entropy/20;
                                         if (level > 4) {level = 4;}
-                                        this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicalWorkbenchBlock.ACTIVE,transmuting).with(AlchemicalWorkbenchBlock.ENTROPY,level));
+                                        this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicAltarBlock.ACTIVE,transmuting).with(AlchemicAltarBlock.ENTROPY,level));
                                         dirty = true;
                                     }
                                 }
@@ -255,13 +254,13 @@ public class AlchemicalWorkbenchBlockEntity extends BlockEntity implements Named
                 // Update visual
                 int level = entropy/20;
                 if (level > 4) {level = 4;}
-                this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicalWorkbenchBlock.ACTIVE,transmuting).with(AlchemicalWorkbenchBlock.ENTROPY,level));
+                this.world.setBlockState(this.pos,this.world.getBlockState(pos).with(AlchemicAltarBlock.ACTIVE,transmuting).with(AlchemicAltarBlock.ENTROPY,level));
                 dirty = true;
             }
 
         }else{
             // Client effects
-            if (numPillars > 0 && getCachedState().get(AlchemicalWorkbenchBlock.ACTIVE)) {
+            if (numPillars > 0 && getCachedState().get(AlchemicAltarBlock.ACTIVE)) {
                 BlockPos ppos, pos;
                 pos = getPos();
                 boolean pillarExists;

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "alchemicalbricks:block/alchemic_altar_top",
+    "north": "alchemicalbricks:block/alchemic_altar_side_3",
+    "south": "alchemicalbricks:block/alchemic_altar_side_3",
+    "east": "alchemicalbricks:block/alchemic_altar_side_3",
+    "west": "alchemicalbricks:block/alchemic_altar_side_3",
+    "up": "alchemicalbricks:block/alchemic_altar_top",
+    "down": "alchemicalbricks:block/polished_alchemical_bricks"
+  }
+}
