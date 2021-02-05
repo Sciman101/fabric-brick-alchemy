@@ -3,7 +3,6 @@ package info.sciman.alchemicalbricks.block.entity;
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.sound.SoundEvents;
 
 public class EntropyVesselBlockEntity extends AbstractEntropyContainerBlockEntity {
 
@@ -31,7 +30,6 @@ public class EntropyVesselBlockEntity extends AbstractEntropyContainerBlockEntit
         if (!world.isClient()) {
             // Break this block
             world.breakBlock(pos, false);
-            SoundEvents.ENTITY_PLAYER_HURT_SWEET_BERRY_BUSH
         }
     }
 

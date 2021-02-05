@@ -5,7 +5,6 @@ import info.sciman.alchemicalbricks.block.EntropyVesselBlock;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
 import info.sciman.alchemicalbricks.block.entity.EntropyVesselBlockEntity;
-import info.sciman.alchemicalbricks.block.entity.UnstableBlockEntity;
 import info.sciman.alchemicalbricks.recipe.TransmutationGenerator;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipeSerializer;
@@ -78,7 +77,6 @@ public class AlchemicalBricksMod implements ModInitializer {
 	);
 
 	/* BLOCK ENTITIES */
-	public static BlockEntityType<UnstableBlockEntity> UNSTABLE_BLOCK_ENTITY;
 	public static BlockEntityType<AlchemicAltarBlockEntity> ALCHEMICAL_WORKBENCH_ENTITY;
 	public static BlockEntityType<EntropyVesselBlockEntity> ENTROPY_VESSEL_ENTITY;
 
@@ -115,7 +113,6 @@ public class AlchemicalBricksMod implements ModInitializer {
 		registerBlockAndItem(id("entropy_vessel"),ENTROPY_VESSEL,ALCHEMICAL_BRICKS_GROUP);
 
 		// Register block entites
-		UNSTABLE_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,id("unstable_block_entity"),BlockEntityType.Builder.create(UnstableBlockEntity::new, UNSTABLE_BLOCK).build(null));
 		ALCHEMICAL_WORKBENCH_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ALCHEMIC_ALTAR),BlockEntityType.Builder.create(AlchemicAltarBlockEntity::new, ALCHEMIC_ALTAR).build(null));
 		ENTROPY_VESSEL_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ENTROPY_VESSEL),BlockEntityType.Builder.create(EntropyVesselBlockEntity::new, ENTROPY_VESSEL).build(null));
 

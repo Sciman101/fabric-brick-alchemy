@@ -1,7 +1,6 @@
 package info.sciman.alchemicalbricks.block;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
-import info.sciman.alchemicalbricks.block.entity.UnstableBlockEntity;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -25,10 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Random;
 
-// TODO: make these drop something other than bricks
-// Having them replicate so easily is mega busted
-// also: change renderer. it's crazy laggy rn
-public class UnstableBlock extends Block implements BlockEntityProvider {
+public class UnstableBlock extends Block {
 
     private static final int MAX_AGE = 5;
     private static final Identifier TAG_PROTECTED = AlchemicalBricksMod.id("unstable_protected");
@@ -137,11 +133,5 @@ public class UnstableBlock extends Block implements BlockEntityProvider {
             // Return random position
             return validPos.get(world.random.nextInt(validPos.size()));
         }
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity createBlockEntity(BlockView world) {
-        return new UnstableBlockEntity();
     }
 }
