@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "full=true": { "model": "alchemicalbricks:block/entropy_sponge_full" },
+    "full=false": { "model": "alchemicalbricks:block/entropy_sponge_empty" }
+  }
+}
+

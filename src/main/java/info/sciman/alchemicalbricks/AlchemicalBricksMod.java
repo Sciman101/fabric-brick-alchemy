@@ -1,10 +1,10 @@
 package info.sciman.alchemicalbricks;
 
 import info.sciman.alchemicalbricks.block.AlchemicAltarBlock;
-import info.sciman.alchemicalbricks.block.EntropyVesselBlock;
+import info.sciman.alchemicalbricks.block.EntropySpongeBlock;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
-import info.sciman.alchemicalbricks.block.entity.EntropyVesselBlockEntity;
+import info.sciman.alchemicalbricks.block.entity.EntropySpongeBlockEntity;
 import info.sciman.alchemicalbricks.recipe.TransmutationGenerator;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipeSerializer;
@@ -63,7 +63,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 	public static final Block POLISHED_ALCHEMICAL_BRICK_SLAB = new SlabBlock(FabricBlockSettings.of(Material.STONE).hardness(3.0f).luminance(6));
 	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing());
 	public static final Block ALCHEMIC_ALTAR = new AlchemicAltarBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f).luminance(8));
-	public static final Block ENTROPY_VESSEL = new EntropyVesselBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f));
+	public static final Block ENTROPY_VESSEL = new EntropySpongeBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f));
 
 	/* STATUS */
 	public static final StatusEffect INSTABILITY = new InstabilityStatusEffect();
@@ -78,7 +78,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 
 	/* BLOCK ENTITIES */
 	public static BlockEntityType<AlchemicAltarBlockEntity> ALCHEMICAL_WORKBENCH_ENTITY;
-	public static BlockEntityType<EntropyVesselBlockEntity> ENTROPY_VESSEL_ENTITY;
+	public static BlockEntityType<EntropySpongeBlockEntity> ENTROPY_VESSEL_ENTITY;
 
 	/* SCREEN HANDLERS */
 	public static final ScreenHandlerType<AlchemicAltarScreenHandler> ALCHEMICAL_WORKBENCH_SCREEN_HANDLER;
@@ -110,11 +110,11 @@ public class AlchemicalBricksMod implements ModInitializer {
 		registerBlockAndItem(id("polished_alchemical_brick_slab"), POLISHED_ALCHEMICAL_BRICK_SLAB, ALCHEMICAL_BRICKS_GROUP);
 		registerBlockAndItem(id("unstable_block"), UNSTABLE_BLOCK, ALCHEMICAL_BRICKS_GROUP);
 		registerBlockAndItem(id("alchemic_altar"), ALCHEMIC_ALTAR, ALCHEMICAL_BRICKS_GROUP);
-		registerBlockAndItem(id("entropy_vessel"),ENTROPY_VESSEL,ALCHEMICAL_BRICKS_GROUP);
+		registerBlockAndItem(id("entropy_sponge"),ENTROPY_VESSEL,ALCHEMICAL_BRICKS_GROUP);
 
 		// Register block entites
 		ALCHEMICAL_WORKBENCH_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ALCHEMIC_ALTAR),BlockEntityType.Builder.create(AlchemicAltarBlockEntity::new, ALCHEMIC_ALTAR).build(null));
-		ENTROPY_VESSEL_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ENTROPY_VESSEL),BlockEntityType.Builder.create(EntropyVesselBlockEntity::new, ENTROPY_VESSEL).build(null));
+		ENTROPY_VESSEL_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ENTROPY_VESSEL),BlockEntityType.Builder.create(EntropySpongeBlockEntity::new, ENTROPY_VESSEL).build(null));
 
 		// Status effects
 		Registry.register(Registry.STATUS_EFFECT,id("instability"),INSTABILITY);

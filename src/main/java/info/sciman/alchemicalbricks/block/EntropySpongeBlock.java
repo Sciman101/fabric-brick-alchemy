@@ -1,9 +1,7 @@
 package info.sciman.alchemicalbricks.block;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
-import info.sciman.alchemicalbricks.block.entity.AbstractEntropyContainerBlockEntity;
-import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
-import info.sciman.alchemicalbricks.block.entity.EntropyVesselBlockEntity;
+import info.sciman.alchemicalbricks.block.entity.EntropySpongeBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -11,28 +9,23 @@ import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.ItemScatterer;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
 import java.util.List;
 
-public class EntropyVesselBlock extends BlockWithEntity {
+public class EntropySpongeBlock extends BlockWithEntity {
 
-    public static final IntProperty ENTROPY = IntProperty.of("entropy",0,4);
+    public static final BooleanProperty FULL = BooleanProperty.of("full");
 
-    public EntropyVesselBlock(Settings settings) {
+    public EntropySpongeBlock(Settings settings) {
         super(settings);
-        this.setDefaultState((BlockState)((BlockState)((BlockState)this.getStateManager().getDefaultState()).with(ENTROPY,0)));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(FULL,false));
     }
 
     @Override
@@ -46,13 +39,13 @@ public class EntropyVesselBlock extends BlockWithEntity {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof EntropyVesselBlockEntity) {
+            if (blockEntity instanceof EntropySpongeBlockEntity) {
 
-                int entropy = ((EntropyVesselBlockEntity) blockEntity).getEntropy();
+                int entropy = ((EntropySpongeBlockEntity) blockEntity).getEntropy();
                 System.out.println(entropy);
                 if (entropy > 10) {
                     // Calculate percentage
-                    int maxEntropy = ((EntropyVesselBlockEntity) blockEntity).getEntropyCapacity();
+                    int maxEntropy = ((EntropySpongeBlockEntity) blockEntity).getEntropyCapacity();
                     float percent = ((float) entropy) / maxEntropy;
 
                     // Get overlap box
@@ -80,11 +73,11 @@ public class EntropyVesselBlock extends BlockWithEntity {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockView world) {
-        return new EntropyVesselBlockEntity();
+        return new EntropySpongeBlockEntity();
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(ENTROPY);
+        builder.add(FULL);
     }
 
     @Override
@@ -95,8 +88,8 @@ public class EntropyVesselBlock extends BlockWithEntity {
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
         BlockEntity be = world.getBlockEntity(pos);
-        if (be != null && be instanceof EntropyVesselBlockEntity) {
-            return (int) ((((float)((EntropyVesselBlockEntity)be).getEntropy()) / ((EntropyVesselBlockEntity) be).getEntropyCapacity()) * 15);
+        if (be != null && be instanceof EntropySpongeBlockEntity) {
+            return (int) ((((float)((EntropySpongeBlockEntity)be).getEntropy()) / ((EntropySpongeBlockEntity) be).getEntropyCapacity()) * 15);
         }else {
             return 0;
         }

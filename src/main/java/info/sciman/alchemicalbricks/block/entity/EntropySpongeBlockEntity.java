@@ -1,12 +1,14 @@
 package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
+import info.sciman.alchemicalbricks.block.AlchemicAltarBlock;
+import info.sciman.alchemicalbricks.block.EntropySpongeBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundTag;
 
-public class EntropyVesselBlockEntity extends AbstractEntropyContainerBlockEntity {
+public class EntropySpongeBlockEntity extends AbstractEntropyContainerBlockEntity {
 
-    public EntropyVesselBlockEntity() {
+    public EntropySpongeBlockEntity() {
         super(AlchemicalBricksMod.ENTROPY_VESSEL_ENTITY);
     }
 
@@ -17,7 +19,19 @@ public class EntropyVesselBlockEntity extends AbstractEntropyContainerBlockEntit
 
     @Override
     public boolean addEntropy(int amt) {
-        return super.addEntropy(amt);
+        boolean result = super.addEntropy(amt);
+
+        // Update block state
+        BlockState bs = this.world.getBlockState(pos);
+        if (getEntropy() > 0 && !bs.get(EntropySpongeBlock.FULL)) {
+            world.setBlockState(pos,bs.with(EntropySpongeBlock.FULL,true));
+            markDirty();
+        }else if (getEntropy() == 0 && bs.get(EntropySpongeBlock.FULL)) {
+            world.setBlockState(pos,bs.with(EntropySpongeBlock.FULL,false));
+            markDirty();
+        }
+
+        return result;
     }
 
     @Override
