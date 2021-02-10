@@ -2,6 +2,7 @@ package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import info.sciman.alchemicalbricks.block.AlchemicAltarBlock;
+import info.sciman.alchemicalbricks.entity.UnstableEntity;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.screen.AlchemicAltarScreenHandler;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
@@ -311,10 +312,11 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
     @Override
     void onEntropyOverflow() {
         if (!world.isClient()) {
-            // Bad stuff
+            // Explode
             BlockPos pos = getPos();
             this.world.createExplosion(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 8f, Explosion.DestructionType.DESTROY);
 
+            // Create unstable blocks
             for (int x=-1;x<2;x++) {
                 for (int y=-1;y<2;y++) {
                     for (int z=-1;z<2;z++) {
@@ -324,6 +326,13 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
                     }
                 }
             }
+
+            // Summon mobs
+            /*for (int i=0;i<world.random.nextInt(3);i++) {
+                UnstableEntity entity = AlchemicalBricksMod.UNSTABLE_ENTITY.create(world);
+                entity.refreshPositionAfterTeleport(pos.getX(),pos.getY(),pos.getZ());
+                world.spawnEntity(entity);
+            }*/
         }
     }
 

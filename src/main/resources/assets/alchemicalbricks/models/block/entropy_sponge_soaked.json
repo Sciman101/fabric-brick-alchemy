@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "alchemicalbricks:block/entropy_sponge_soaked"
+  }
+}

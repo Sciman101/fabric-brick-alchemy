@@ -10,7 +10,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.BlockView;
@@ -21,11 +21,11 @@ import java.util.List;
 
 public class EntropySpongeBlock extends BlockWithEntity {
 
-    public static final BooleanProperty FULL = BooleanProperty.of("full");
+    public static final IntProperty FULLNNESS = IntProperty.of("fullness",0,3);
 
     public EntropySpongeBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(FULL,false));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(FULLNNESS,0));
     }
 
     @Override
@@ -42,18 +42,16 @@ public class EntropySpongeBlock extends BlockWithEntity {
             if (blockEntity instanceof EntropySpongeBlockEntity) {
 
                 int entropy = ((EntropySpongeBlockEntity) blockEntity).getEntropy();
-                System.out.println(entropy);
                 if (entropy > 10) {
                     // Calculate percentage
                     int maxEntropy = ((EntropySpongeBlockEntity) blockEntity).getEntropyCapacity();
                     float percent = ((float) entropy) / maxEntropy;
 
                     // Get overlap box
-                    Box overlapBox = new Box(pos).expand(percent * 32);
-                    System.out.println(overlapBox.getAverageSideLength());
+                    Box overlapBox = new Box(pos).expand(percent * 8);
                     List<LivingEntity> list = world.getNonSpectatingEntities(LivingEntity.class, overlapBox);
 
-                    int effectLevel = (int) (percent * 2);
+                    int effectLevel = (int) (percent);
 
                     // Apply effect to all overlapping entities
                     for (LivingEntity e : list) {
@@ -77,7 +75,7 @@ public class EntropySpongeBlock extends BlockWithEntity {
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FULL);
+        builder.add(FULLNNESS);
     }
 
     @Override

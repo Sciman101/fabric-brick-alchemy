@@ -1,7 +1,7 @@
 package info.sciman.alchemicalbricks.mixin;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
-import info.sciman.alchemicalbricks.ThrownBrickEntity;
+import info.sciman.alchemicalbricks.entity.ThrownBrickEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;

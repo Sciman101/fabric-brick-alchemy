@@ -5,6 +5,8 @@ import info.sciman.alchemicalbricks.block.EntropySpongeBlock;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
 import info.sciman.alchemicalbricks.block.entity.EntropySpongeBlockEntity;
+import info.sciman.alchemicalbricks.entity.ThrownBrickEntity;
+import info.sciman.alchemicalbricks.entity.UnstableEntity;
 import info.sciman.alchemicalbricks.recipe.TransmutationGenerator;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipeSerializer;
@@ -16,6 +18,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.Block;
@@ -63,7 +66,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 	public static final Block POLISHED_ALCHEMICAL_BRICK_SLAB = new SlabBlock(FabricBlockSettings.of(Material.STONE).hardness(3.0f).luminance(6));
 	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing());
 	public static final Block ALCHEMIC_ALTAR = new AlchemicAltarBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f).luminance(8));
-	public static final Block ENTROPY_VESSEL = new EntropySpongeBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f));
+	public static final Block ENTROPY_SPONGE = new EntropySpongeBlock(FabricBlockSettings.of(Material.SPONGE).hardness(0.5f));
 
 	/* STATUS */
 	public static final StatusEffect INSTABILITY = new InstabilityStatusEffect();
@@ -74,6 +77,11 @@ public class AlchemicalBricksMod implements ModInitializer {
 		Registry.ENTITY_TYPE,
 		id("thrown_brick"),
 			FabricEntityTypeBuilder.create(SpawnGroup.MISC, ThrownBrickEntity::new).dimensions(EntityDimensions.fixed(0.25f,0.25f)).build()
+	);
+	public static final EntityType<UnstableEntity> UNSTABLE_ENTITY = Registry.register(
+			Registry.ENTITY_TYPE,
+			id("unstable_entity"),
+			FabricEntityTypeBuilder.create(SpawnGroup.MONSTER,UnstableEntity::new).dimensions(EntityDimensions.fixed(2,2)).build()
 	);
 
 	/* BLOCK ENTITIES */
@@ -110,11 +118,14 @@ public class AlchemicalBricksMod implements ModInitializer {
 		registerBlockAndItem(id("polished_alchemical_brick_slab"), POLISHED_ALCHEMICAL_BRICK_SLAB, ALCHEMICAL_BRICKS_GROUP);
 		registerBlockAndItem(id("unstable_block"), UNSTABLE_BLOCK, ALCHEMICAL_BRICKS_GROUP);
 		registerBlockAndItem(id("alchemic_altar"), ALCHEMIC_ALTAR, ALCHEMICAL_BRICKS_GROUP);
-		registerBlockAndItem(id("entropy_sponge"),ENTROPY_VESSEL,ALCHEMICAL_BRICKS_GROUP);
+		registerBlockAndItem(id("entropy_sponge"), ENTROPY_SPONGE,ALCHEMICAL_BRICKS_GROUP);
 
 		// Register block entites
 		ALCHEMICAL_WORKBENCH_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ALCHEMIC_ALTAR),BlockEntityType.Builder.create(AlchemicAltarBlockEntity::new, ALCHEMIC_ALTAR).build(null));
-		ENTROPY_VESSEL_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ENTROPY_VESSEL),BlockEntityType.Builder.create(EntropySpongeBlockEntity::new, ENTROPY_VESSEL).build(null));
+		ENTROPY_VESSEL_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,Registry.BLOCK.getId(ENTROPY_SPONGE),BlockEntityType.Builder.create(EntropySpongeBlockEntity::new, ENTROPY_SPONGE).build(null));
+
+		// Setup entity attributes
+		FabricDefaultAttributeRegistry.register(UNSTABLE_ENTITY,UnstableEntity.createUnstableEntityAttributes());
 
 		// Status effects
 		Registry.register(Registry.STATUS_EFFECT,id("instability"),INSTABILITY);

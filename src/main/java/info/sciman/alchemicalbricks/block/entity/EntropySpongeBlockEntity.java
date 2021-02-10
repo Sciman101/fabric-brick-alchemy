@@ -1,10 +1,10 @@
 package info.sciman.alchemicalbricks.block.entity;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
-import info.sciman.alchemicalbricks.block.AlchemicAltarBlock;
 import info.sciman.alchemicalbricks.block.EntropySpongeBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.math.MathHelper;
 
 public class EntropySpongeBlockEntity extends AbstractEntropyContainerBlockEntity {
 
@@ -23,12 +23,16 @@ public class EntropySpongeBlockEntity extends AbstractEntropyContainerBlockEntit
 
         // Update block state
         BlockState bs = this.world.getBlockState(pos);
-        if (getEntropy() > 0 && !bs.get(EntropySpongeBlock.FULL)) {
-            world.setBlockState(pos,bs.with(EntropySpongeBlock.FULL,true));
-            markDirty();
-        }else if (getEntropy() == 0 && bs.get(EntropySpongeBlock.FULL)) {
-            world.setBlockState(pos,bs.with(EntropySpongeBlock.FULL,false));
-            markDirty();
+        if (bs.getBlock() == AlchemicalBricksMod.ENTROPY_SPONGE) {
+            int fullness = 0;
+            if (getEntropy() > 0) {
+                fullness = 1 + MathHelper.floor(((float)getEntropy())/getEntropyCapacity()) * 3;
+                if (fullness > 3) fullness = 3;
+            }
+            if (fullness != bs.get(EntropySpongeBlock.FULLNNESS)) {
+                world.setBlockState(pos,bs.with(EntropySpongeBlock.FULLNNESS,fullness));
+                markDirty();
+            }
         }
 
         return result;

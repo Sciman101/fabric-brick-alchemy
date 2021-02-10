@@ -1,10 +1,11 @@
 package info.sciman.alchemicalbricks;
 
+import info.sciman.alchemicalbricks.entity.ThrownBrickEntity;
+import info.sciman.alchemicalbricks.entity.render.UnstableEntityRenderer;
 import info.sciman.alchemicalbricks.screen.AlchemicAltarScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
@@ -19,6 +20,11 @@ public class AlchemicalBricksModClient implements ClientModInitializer {
 
         // Register workbench screen
         ScreenRegistry.register(AlchemicalBricksMod.ALCHEMICAL_WORKBENCH_SCREEN_HANDLER, AlchemicAltarScreen::new);
+
+        // Register entity model
+        EntityRendererRegistry.INSTANCE.register(AlchemicalBricksMod.UNSTABLE_ENTITY, (disp,ctx) -> {
+            return new UnstableEntityRenderer(disp);
+        });
     }
 
 }

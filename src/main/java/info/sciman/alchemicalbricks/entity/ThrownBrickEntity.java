@@ -1,5 +1,6 @@
-package info.sciman.alchemicalbricks;
+package info.sciman.alchemicalbricks.entity;
 
+import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import info.sciman.alchemicalbricks.block.UnstableBlock;
 import info.sciman.alchemicalbricks.util.AlchemyHelper;
 import net.fabricmc.api.EnvType;
