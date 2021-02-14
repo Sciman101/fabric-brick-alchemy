@@ -21,10 +21,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.Material;
-import net.minecraft.block.SlabBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.dispenser.DispenserBehavior;
 import net.minecraft.block.dispenser.ProjectileDispenserBehavior;
 import net.minecraft.block.entity.BlockEntityType;
@@ -37,6 +34,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.*;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
@@ -66,7 +64,7 @@ public class AlchemicalBricksMod implements ModInitializer {
 	public static final Block POLISHED_ALCHEMICAL_BRICK_SLAB = new SlabBlock(FabricBlockSettings.of(Material.STONE).hardness(3.0f).luminance(6));
 	public static final Block UNSTABLE_BLOCK = new UnstableBlock(FabricBlockSettings.of(Material.PORTAL).breakInstantly().luminance(15).resistance(1500).dropsNothing());
 	public static final Block ALCHEMIC_ALTAR = new AlchemicAltarBlock(FabricBlockSettings.of(Material.STONE).hardness(1.5f).luminance(8));
-	public static final Block ENTROPY_SPONGE = new EntropySpongeBlock(FabricBlockSettings.of(Material.SPONGE).hardness(0.5f));
+	public static final Block ENTROPY_SPONGE = new EntropySpongeBlock(FabricBlockSettings.of(Material.SPONGE).strength(0.6F).sounds(BlockSoundGroup.GRASS));
 
 	/* STATUS */
 	public static final StatusEffect INSTABILITY = new InstabilityStatusEffect();

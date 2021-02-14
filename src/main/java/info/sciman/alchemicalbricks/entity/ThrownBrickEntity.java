@@ -6,19 +6,24 @@ import info.sciman.alchemicalbricks.util.AlchemyHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.tag.TagRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.ProjectileDamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.BlockTags;
@@ -27,14 +32,17 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class ThrownBrickEntity extends ThrownItemEntity {
 
+    private static final Tag<Block> BREAKABLE_BLOCKS;
     private static final Tag<EntityType<?>> SKELETONS;
 
     static {
         SKELETONS = TagRegistry.entityType(new Identifier("minecraft","skeletons"));
+        BREAKABLE_BLOCKS = TagRegistry.block(AlchemicalBricksMod.id("brick_breakable"));
     }
 
     public ThrownBrickEntity(EntityType<? extends ThrownItemEntity> entityType, World world) {
@@ -48,7 +56,11 @@ public class ThrownBrickEntity extends ThrownItemEntity {
 
     @Environment(EnvType.CLIENT)
     private ParticleEffect getParticleParameters() {
-        return (ParticleEffect)(new ItemStackParticleEffect(ParticleTypes.ITEM, this.getItem()));
+        Item item = this.getItem().getItem();
+        if (item == Items.BRICK) {
+            item = Blocks.BRICKS.asItem();
+        }
+        return (ParticleEffect)(new ItemStackParticleEffect(ParticleTypes.ITEM, new ItemStack(item)));
     }
 
     @Environment(EnvType.CLIENT)
@@ -61,7 +73,6 @@ public class ThrownBrickEntity extends ThrownItemEntity {
             }
         }
     }
-
 
 
     // Hit mobs
@@ -85,7 +96,12 @@ public class ThrownBrickEntity extends ThrownItemEntity {
                 ((LivingEntity)entity).addStatusEffect(new StatusEffectInstance(AlchemicalBricksMod.INSTABILITY,600,1));
             }
         }else if (this.getItem().getItem() == AlchemicalBricksMod.ALCHEMICAL_BRICK) {
-            //TODO implement something here
+            // Summon lightning
+            if (this.world instanceof ServerWorld) {
+                LightningEntity lightningEntity = (LightningEntity)EntityType.LIGHTNING_BOLT.create(this.world);
+                lightningEntity.refreshPositionAfterTeleport(entityHitResult.getPos());
+                this.world.spawnEntity(lightningEntity);
+            }
         }
 
         // Destroy
@@ -102,7 +118,7 @@ public class ThrownBrickEntity extends ThrownItemEntity {
         BlockPos pos = blockHitResult.getBlockPos();
 
         // Is the block glass?
-        if (block.getBlock().isIn(BlockTags.IMPERMEABLE)) {
+        if (block.getBlock().isIn(BREAKABLE_BLOCKS)) {
             this.world.breakBlock(pos,true);
         }else{
 

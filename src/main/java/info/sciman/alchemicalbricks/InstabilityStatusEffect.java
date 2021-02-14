@@ -21,13 +21,6 @@ import net.minecraft.world.World;
 
 public class InstabilityStatusEffect extends StatusEffect {
 
-    private static final Identifier TAG_PROTECTION = AlchemicalBricksMod.id("instability_protection");
-    private static final Tag<Block> PROTECTION_BLOCKS;
-
-    static {
-        PROTECTION_BLOCKS = TagRegistry.block(TAG_PROTECTION);
-    }
-
     protected InstabilityStatusEffect() {
         super(StatusEffectType.HARMFUL, 0xFA008F);
     }
@@ -49,10 +42,6 @@ public class InstabilityStatusEffect extends StatusEffect {
 
         World world = entity.world;
 
-        if (PROTECTION_BLOCKS.contains(world.getBlockState(entity.getBlockPos().down()).getBlock())) {
-            return;
-        }
-
         // Just stolen from the chorus fruit
         if (!world.isClient) {
             double d = entity.getX();
@@ -67,10 +56,7 @@ public class InstabilityStatusEffect extends StatusEffect {
                     entity.stopRiding();
                 }
 
-                BlockHitResult hit = world.raycast(new RaycastContext(entity.getPos(),new Vec3d(g,h,j), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE,entity));
-                if (PROTECTION_BLOCKS.contains(world.getBlockState(hit.getBlockPos()).getBlock())) {
-                    return;
-                }
+                //BlockHitResult hit = world.raycast(new RaycastContext(entity.getPos(),new Vec3d(g,h,j), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE,entity));
 
                 if (entity.teleport(g, h, j, true)) {
                     world.playSound((PlayerEntity)null, d, e, f, SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);

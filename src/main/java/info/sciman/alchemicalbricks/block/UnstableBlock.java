@@ -27,7 +27,7 @@ import java.util.Random;
 public class UnstableBlock extends Block {
 
     private static final int MAX_AGE = 5;
-    private static final Identifier TAG_PROTECTED = AlchemicalBricksMod.id("unstable_protected");
+    private static final Identifier TAG_PROTECTED = AlchemicalBricksMod.id("unstable_block_immune");
     private static final Tag<Block> PROTECTED_BLOCKS;
     private static final int SPREAD_DELAY_MIN = 60;
     private static final int SPREAD_DELAY_MAX = 120;
