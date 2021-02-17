@@ -36,6 +36,7 @@ public class AlchemicAltarScreenHandler extends ScreenHandler {
         int m, l;
         this.addSlot(new Slot(inventory,0,50,41));
         this.addSlot(new FurnaceOutputSlot(playerInventory.player,inventory,1,110,42));
+        this.addSlot(new Slot(inventory,2,19,26));
 
         //The player inventory
         for (m = 0; m < 3; ++m) {

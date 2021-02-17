@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "mbm",
+    "bsb",
+    "mbm"
+  ],
+  "key": {
+    "m": {
+      "item": "alchemicalbricks:unstable_matter"
+    },
+    "b": {
+      "item": "alchemicalbricks:alchemical_brick"
+    },
+    "s": {
+      "item": "minecraft:sponge"
+    }
+  },
+  "result": {
+    "item": "alchemicalbricks:entropy_sponge"
+  }
+}

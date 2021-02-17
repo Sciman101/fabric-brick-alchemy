@@ -2,6 +2,7 @@ package info.sciman.alchemicalbricks.block;
 
 import info.sciman.alchemicalbricks.AlchemicalBricksMod;
 import info.sciman.alchemicalbricks.block.entity.EntropySpongeBlockEntity;
+import info.sciman.alchemicalbricks.util.AlchemyHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -9,6 +10,8 @@ import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.item.ItemStack;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
@@ -34,6 +37,18 @@ public class EntropySpongeBlock extends BlockWithEntity {
         return BlockRenderType.MODEL;
     }
 
+    // Get blockentity data
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.onPlaced(world, pos, state, placer, itemStack);
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof EntropySpongeBlockEntity) {
+            ((EntropySpongeBlockEntity) blockEntity).addEntropy(0);
+        }
+
+    }
+
     // Release entropy on breaking
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
@@ -42,10 +57,21 @@ public class EntropySpongeBlock extends BlockWithEntity {
             if (blockEntity instanceof EntropySpongeBlockEntity) {
 
                 int entropy = ((EntropySpongeBlockEntity) blockEntity).getEntropy();
-                if (entropy > 10) {
+                /*if (entropy > 10) {
                     // Calculate percentage
                     int maxEntropy = ((EntropySpongeBlockEntity) blockEntity).getEntropyCapacity();
                     float percent = ((float) entropy) / maxEntropy;
+
+                    // Create effect
+                    if (world.isClient()) {
+                        for (int i=0;i<entropy;i++) {
+                            world.addParticle(ParticleTypes.SMOKE,pos.getX()+0.5,pos.getY()+0.5,pos.getZ()+0.5,
+                                    world.random.nextDouble()*4-2,
+                                    world.random.nextDouble()*4-2,
+                                    world.random.nextDouble()*4-2
+                            );
+                        }
+                    }
 
                     // Get overlap box
                     Box overlapBox = new Box(pos).expand(percent * 8);
@@ -59,7 +85,9 @@ public class EntropySpongeBlock extends BlockWithEntity {
                         System.out.println(e.getDisplayName().toString());
                     }
 
-                }
+                }*/
+
+                AlchemyHelper.onEntropyReleased(world,pos,entropy);
 
                 // update comparators
                 world.updateComparators(pos,this);

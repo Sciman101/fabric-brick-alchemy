@@ -53,6 +53,36 @@ public abstract class AbstractEntropyContainerBlockEntity extends BlockEntity {
         return false;
     }
 
+    /**
+     * Transfer entropy to an adjacent container
+     */
+    public void tryTransferEntropy() {
+        if (getEntropy() > 0) {
+            for (int x = -1; x < 2; x++) {
+                for (int y = -1; y < 2; y++) {
+                    for (int z = -1; z < 2; z++) {
+                        if (!(x == 0 && y == 0 && z == 0)) {
+                            // Look for block entity
+                            BlockEntity be = world.getBlockEntity(pos.add(x, y, z));
+                            if (be != null && be instanceof AbstractEntropyContainerBlockEntity) {
+                                AbstractEntropyContainerBlockEntity abe = (AbstractEntropyContainerBlockEntity) be;
+                                // Do transfer
+                                if (abe.canAcceptFromAltar()) {
+                                    abe.addEntropy(1);
+                                    addEntropy(-1);
+
+                                    if (getEntropy() <= 0) {
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Retrieve values from tag
     @Override
     public void fromTag(BlockState state, CompoundTag tag) {

@@ -5,6 +5,7 @@ import info.sciman.alchemicalbricks.block.AlchemicAltarBlock;
 import info.sciman.alchemicalbricks.entity.UnstableEntity;
 import info.sciman.alchemicalbricks.recipe.TransmutationRecipe;
 import info.sciman.alchemicalbricks.screen.AlchemicAltarScreenHandler;
+import info.sciman.alchemicalbricks.util.AlchemyHelper;
 import info.sciman.alchemicalbricks.util.ImplementedInventory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
@@ -19,6 +20,7 @@ import net.minecraft.inventory.SidedInventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -72,6 +74,7 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
 
     // Used for transmutation
     private Item prevInputItem = null; // What was the last thing we had input?
+    private Item prevOutputItem = null; // Last item in the output
     private TransmutationRecipe cachedRecipe; // This is what we will produce
     private boolean transmuting = false;
 
@@ -145,29 +148,7 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
             boolean wasTransmuting = transmuting;
             // If we aren't already transmuting, try and find a valid transmutation
             if (!transmuting) {
-                if (!inputStack.isEmpty()) {
-                    // Check for a change in item
-                    if (inputStack.getItem() != prevInputItem) {
-
-                        // Try and perform transmutation
-                        SimpleInventory inventory = new SimpleInventory(inputStack);
-                        Optional<TransmutationRecipe> match = world.getRecipeManager().getFirstMatch(TransmutationRecipe.Type.INSTANCE,inventory,world);
-
-                        // this should only get called when an item is swapped in the slot
-                        if (match.isPresent()) {
-
-                            TransmutationRecipe.AlchemyContext ctx = match.get().getContext();
-                            if (ctx == TransmutationRecipe.AlchemyContext.ALTAR ||
-                                ctx == TransmutationRecipe.AlchemyContext.ANY) {
-                                // Cache recipe
-                                cachedRecipe = match.get();
-                                transmuting = true;
-                                conversionProgress = 0;
-                            }
-                        }
-                    }
-                    prevInputItem = inputStack.getItem();
-                }
+                tryStartTransmutation(inputStack);
             }else{
 
                 // First, check for item removal
@@ -178,45 +159,7 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
                     prevInputItem = null;
                     cachedRecipe = null;
                 }else{
-
-                    ItemStack outputStack = getItems().get(1);
-
-                    if (numPillars > 0) {
-
-                        // Make sure the output matches the cached output
-                        if ((outputStack.getItem() == cachedRecipe.getOutput().getItem() || outputStack.isEmpty()) && outputStack.getCount() + 1 <= outputStack.getMaxCount()) {
-                            // Increment progress based on the number of pillars surrounding the altar
-                            // Having more entropy also decreases efficiency
-                            int period = ((9 - numPillars) * 2);
-                            if (entropy >= 20) {
-                                period *= entropy/20;
-                            }
-
-                            if (world.getTime() % period == 0L) {
-                                conversionProgress++;
-                                if (conversionProgress > 24) {
-                                    // Transmutation successful!
-
-                                    // Decrement input stack
-                                    inputStack.decrement(1);
-                                    // Set output
-                                    if (outputStack.isEmpty()) {
-                                        getItems().set(1,cachedRecipe.getOutput().copy());
-                                    }else {
-                                        outputStack.increment(1);
-                                    }
-
-                                    // Reset progress
-                                    conversionProgress = 0;
-
-                                    // Add entropy
-                                    addEntropy(cachedRecipe.getEntropy());
-                                }
-                            }
-                        }
-                    }
-
-                    prevInputItem = inputStack.getItem();
+                    handleTransmutation(inputStack);
                 }
             }
 
@@ -248,9 +191,9 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
                                 pos.getX()+.5,
                                 pos.getY()+.75,
                                 pos.getZ()+.5,
-                                -pos.getX()+ppos.getX(),
-                                -pos.getY()+ppos.getY(),
-                                -pos.getZ()+ppos.getZ());
+                                (-pos.getX()+ppos.getX())*.9,
+                                (-pos.getY()+ppos.getY())*.9,
+                                (-pos.getZ()+ppos.getZ())*.9);
                     }
                 }
             }
@@ -264,32 +207,92 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
     }
 
     /**
-     * Transfer entropy to an adjacent container
+     * Process transmutations that are going in
      */
-    void tryTransferEntropy() {
-        if (getEntropy() > 0) {
-            for (int x = -1; x < 2; x++) {
-                for (int y = -1; y < 2; y++) {
-                    for (int z = -1; z < 2; z++) {
-                        if (!(x == 0 && y == 0 && z == 0)) {
-                            // Look for block entity
-                            BlockEntity be = world.getBlockEntity(pos.add(x, y, z));
-                            if (be != null && be instanceof AbstractEntropyContainerBlockEntity) {
-                                AbstractEntropyContainerBlockEntity abe = (AbstractEntropyContainerBlockEntity) be;
-                                // Do transfer
-                                if (abe.canAcceptFromAltar()) {
-                                    abe.addEntropy(1);
-                                    addEntropy(-1);
+    void handleTransmutation(ItemStack inputStack) {
+        ItemStack outputStack = getItems().get(1);
 
-                                    if (getEntropy() <= 0) {
-                                        return;
-                                    }
-                                }
-                            }
+        if (numPillars > 0) {
+
+            // Make sure the output matches the cached output
+            if ((outputStack.getItem() == cachedRecipe.getOutput().getItem() || outputStack.isEmpty()) && outputStack.getCount() + 1 <= outputStack.getMaxCount()) {
+
+                // Get modifiers
+                Item catalyst = getItems().get(2).getItem();
+                int speedModifier = 1;
+                if (catalyst == Items.NETHER_STAR) {
+                    speedModifier = 2;
+                }
+
+                // Increment progress based on the number of pillars surrounding the altar
+                // Having more entropy also decreases efficiency
+                int period = ((9 - numPillars) * 2) / speedModifier;
+                if (entropy >= 20) {
+                    period *= entropy/20;
+                }
+
+                if (world.getTime() % period == 0L) {
+                    conversionProgress++;
+                    if (conversionProgress > 24) {
+                        // Transmutation successful!
+
+                        // Decrement input stack
+                        inputStack.decrement(1);
+                        // Set output
+                        if (outputStack.isEmpty()) {
+                            getItems().set(1,cachedRecipe.getOutput().copy());
+                        }else {
+                            outputStack.increment(1);
+                        }
+
+                        // Reset progress
+                        conversionProgress = 0;
+
+                        // Add entropy
+                        addEntropy(cachedRecipe.getEntropy() * speedModifier);
+                    }
+                }
+            }
+        }
+
+        prevInputItem = inputStack.getItem();
+        prevOutputItem = outputStack.getItem();
+    }
+
+    /**
+     * Attempt to start a transmutation
+     */
+    void tryStartTransmutation(ItemStack inputStack) {
+        if (!inputStack.isEmpty()) {
+
+            ItemStack outputStack = getItems().get(1);
+
+            // Check for a change in item
+            if (inputStack.getItem() != prevInputItem || outputStack.getItem() != prevOutputItem) {
+
+                // Try and perform transmutation
+                SimpleInventory inventory = new SimpleInventory(inputStack);
+                Optional<TransmutationRecipe> match = world.getRecipeManager().getFirstMatch(TransmutationRecipe.Type.INSTANCE,inventory,world);
+
+                // this should only get called when an item is swapped in the slot
+                if (match.isPresent()) {
+
+                    // Make sure output matches
+                    TransmutationRecipe recipe = match.get();
+                    if (recipe.getOutput().getItem() == outputStack.getItem() || outputStack.isEmpty()) {
+                        TransmutationRecipe.AlchemyContext ctx = recipe.getContext();
+                        if (ctx == TransmutationRecipe.AlchemyContext.ALTAR ||
+                                ctx == TransmutationRecipe.AlchemyContext.ANY) {
+                            // Cache recipe
+                            cachedRecipe = match.get();
+                            transmuting = true;
+                            conversionProgress = 0;
                         }
                     }
                 }
             }
+            prevInputItem = inputStack.getItem();
+            prevOutputItem = outputStack.getItem();
         }
     }
 
@@ -326,6 +329,8 @@ public class AlchemicAltarBlockEntity extends AbstractEntropyContainerBlockEntit
                     }
                 }
             }
+
+            AlchemyHelper.onEntropyReleased(world,pos,getEntropy());
 
             // Summon mobs
             /*for (int i=0;i<world.random.nextInt(3);i++) {

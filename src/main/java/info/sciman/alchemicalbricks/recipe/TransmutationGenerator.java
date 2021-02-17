@@ -5,7 +5,11 @@ import info.sciman.alchemicalbricks.mixin.RuntimeResourcePackImplAccessorMixin;
 import net.devtech.arrp.json.recipe.JIngredient;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.CactusBlock;
+import net.minecraft.block.FireBlock;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -50,6 +54,10 @@ public class TransmutationGenerator {
                 Blocks.OAK_WOOD,Blocks.SPRUCE_WOOD,Blocks.BIRCH_WOOD,Blocks.JUNGLE_WOOD,Blocks.ACACIA_WOOD,Blocks.DARK_OAK_WOOD);
         addCyclicalTransmutation(1, TransmutationRecipe.AlchemyContext.ANY,
                 Blocks.STRIPPED_OAK_WOOD,Blocks.STRIPPED_SPRUCE_WOOD,Blocks.STRIPPED_BIRCH_WOOD,Blocks.STRIPPED_JUNGLE_WOOD,Blocks.STRIPPED_ACACIA_WOOD,Blocks.STRIPPED_DARK_OAK_WOOD);
+
+        // Misc
+        addLinearTransmutation(Blocks.GRASS_BLOCK,Blocks.MYCELIUM,5, TransmutationRecipe.AlchemyContext.ANY);
+        addSymmetricalTransmutation(Items.REDSTONE,Items.GLOWSTONE,5, TransmutationRecipe.AlchemyContext.ALTAR);
     }
 
 

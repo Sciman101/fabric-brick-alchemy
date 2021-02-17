@@ -1,6 +1,7 @@
 package info.sciman.alchemicalbricks.block;
 
 import info.sciman.alchemicalbricks.block.entity.AlchemicAltarBlockEntity;
+import info.sciman.alchemicalbricks.util.AlchemyHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
@@ -76,6 +77,9 @@ public class AlchemicAltarBlock extends BlockWithEntity {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof AlchemicAltarBlockEntity) {
                 ItemScatterer.spawn(world, pos, (AlchemicAltarBlockEntity)blockEntity);
+
+                AlchemyHelper.onEntropyReleased(world,pos,((AlchemicAltarBlockEntity) blockEntity).getEntropy());
+
                 // update comparators
                 world.updateComparators(pos,this);
             }
